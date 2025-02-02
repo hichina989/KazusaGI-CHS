@@ -1,7 +1,7 @@
 # KazusaGI_cb2
  Server sofware reimplementaion for an old version of a certain anime game
 
-## Please note: the project is still WIP, and many features might not work as intended. Same with the code quality, it will go through many rewrites and refactoring in the future, so please don't judge
+## Please note: the project is still WIP and is in its very early stages, and many features might not work as intended. Same with the code quality, it will go through many rewrites and refactoring in the future, so please don't judge :\)
 
 # Usage
 - Compile via Visual Studio 2022
