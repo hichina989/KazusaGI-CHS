@@ -122,11 +122,13 @@ public class LoginStuff
         });
         session.SendPacket(new PlayerGameTimeNotify()
         {
+            GameTime = 18000,
             Uid = session.player.Uid
         });
         session.SendPacket(new SceneTimeNotify()
         {
             SceneId = session.player.SceneId,
+            SceneTime = 69
         });
         session.SendPacket(new WorldPlayerInfoNotify()
         {

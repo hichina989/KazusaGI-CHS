@@ -1,7 +1,9 @@
 ﻿using KazusaGI_cb2.Protocol;
+using KazusaGI_cb2.Resource;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using static KazusaGI_cb2.Utils.Crypto;
 
@@ -9,6 +11,32 @@ namespace KazusaGI_cb2.GameServer.Handlers;
 
 public class Scene
 {
+    [Packet.PacketCmdId(PacketId.SceneEntitiesMovesReq)]
+    public static void HandleSceneEntitiesMovesReq(Session session, Packet packet)
+    {
+        SceneEntitiesMovesReq req = packet.GetDecodedBody<SceneEntitiesMovesReq>();
+        SceneEntitiesMovesRsp rsp = new SceneEntitiesMovesRsp();
+        foreach (EntityMoveInfo move in req.EntityMoveInfoLists)
+        {
+            if (session.entityMap.ContainsKey(move.EntityId))
+            {
+                session.entityMap[move.EntityId].Position = VectorProto2Vector3(move.MotionInfo.Pos);
+                if (session.entityMap[move.EntityId].GetType() == typeof(AvatarEntity))
+                {
+                    session.player!.TeleportToPos(session, VectorProto2Vector3(move.MotionInfo.Pos), true);
+                    session.player!.SetRot(VectorProto2Vector3(move.MotionInfo.Rot));
+                    // session.c.LogWarning($"Player {session.player.Uid} moved to {move.MotionInfo.Pos.X}, {move.MotionInfo.Pos.Y}, {move.MotionInfo.Pos.Z}");
+                }
+            }
+        }
+        session.SendPacket(rsp);
+    }
+
+    public static Vector3 VectorProto2Vector3(Protocol.Vector vectorProto)
+    {
+        return new Vector3(vectorProto.X, vectorProto.Y, vectorProto.Z);
+    }
+
     [Packet.PacketCmdId(PacketId.SceneGetAreaExplorePercentReq)]
     public static void HandleSceneGetAreaExplorePercentReq(Session session, Packet packet)
     {
@@ -21,17 +49,46 @@ public class Scene
         session.SendPacket(rsp);
     }
 
-    [Packet.PacketCmdId(PacketId.GetScenePointReq)] // TODO: get from res
+    [Packet.PacketCmdId(PacketId.SceneTransToPointReq)]
+    public static void HandleSceneTransToPointReq(Session session, Packet packet)
+    {
+        SceneTransToPointReq req = packet.GetDecodedBody<SceneTransToPointReq>();
+
+        ConfigScenePoint scenePoint = MainApp.resourceManager.ScenePoints[req.SceneId].points[req.PointId];
+
+        session.player!.SetRot(scenePoint.tranRot);
+        session.player.TeleportToPos(session, scenePoint.tranPos, true);
+        session.player.EnterScene(session, req.SceneId, EnterType.EnterGoto);
+
+        SceneTransToPointRsp rsp = new SceneTransToPointRsp()
+        {
+            PointId = req.PointId,
+            SceneId = req.SceneId
+        };
+        session.SendPacket(rsp);
+    }
+
+    [Packet.PacketCmdId(PacketId.GetScenePointReq)]
     public static void HandleGetScenePointReq(Session session, Packet packet)
     {
         GetScenePointReq req = packet.GetDecodedBody<GetScenePointReq>();
         GetScenePointRsp rsp = new GetScenePointRsp();
-        for (uint i = 0; i < 200; i++)
+        foreach (KeyValuePair<uint, ConfigScenePoint> kvp in MainApp.resourceManager.ScenePoints[req.SceneId].points)
         {
-            rsp.UnlockedPointLists.Add(i);
-            rsp.UnlockAreaLists.Add(i);
+            rsp.UnlockedPointLists.Add(kvp.Key);
+            rsp.BelongUid = req.BelongUid;
+
+            if (!rsp.UnlockAreaLists.Contains(kvp.Value.areaId) && kvp.Value.areaId != 0)
+                rsp.UnlockAreaLists.Add(kvp.Value.areaId);
         }
         session.SendPacket(rsp);
+        ScenePointUnlockNotify scenePointUnlockNotify = new ScenePointUnlockNotify() { SceneId = session.player!.SceneId };
+
+        for (uint i = 1; i < 200; i++)
+        {
+            scenePointUnlockNotify.PointLists.Add(i);
+        }
+        session.SendPacket(scenePointUnlockNotify);
     }
 
     [Packet.PacketCmdId(PacketId.EnterWorldAreaReq)]
@@ -52,11 +109,12 @@ public class Scene
         GetSceneAreaReq req = packet.GetDecodedBody<GetSceneAreaReq>();
         GetSceneAreaRsp rsp = new GetSceneAreaRsp()
         {
-            SceneId = session.player!.SceneId,
+            SceneId = req.SceneId,
         };
-        for (uint i = 0; i < 200; i++)
+        foreach (ConfigScenePoint scenePoint in MainApp.resourceManager.ScenePoints[session.player!.SceneId].points.Values)
         {
-            rsp.AreaIdLists.Add(i);
+            if (!rsp.AreaIdLists.Contains(scenePoint.areaId) && scenePoint.areaId != 0)
+                rsp.AreaIdLists.Add(scenePoint.areaId);
         }
         session.SendPacket(rsp);
     }

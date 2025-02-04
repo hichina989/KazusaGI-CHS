@@ -143,12 +143,11 @@ public class Player
         }
     }
 
-    public void EnterScene(Session session, uint sceneId)
+    public void EnterScene(Session session, uint sceneId, EnterType enterType = EnterType.EnterSelf)
     {
         ResourceManager resourceManager = MainApp.resourceManager;
         Vector3 oldPos = session.player!.Pos;
-
-        this.TeleportToPos(session, resourceManager.SceneLuas[sceneId].scene_config.born_pos, true);
+        Vector3 newPos;
 
         resourceManager.ScenePoints.TryGetValue(sceneId, out ScenePoint? point);
         if (point == null)
@@ -157,9 +156,16 @@ public class Player
             return;
         }
 
-
-        Vector3 newPos = resourceManager.SceneLuas[sceneId].scene_config.born_pos;
-        session.player.Pos = newPos;
+        // not really efficient but it works, so who cares
+        if (oldPos == new Vector3())
+        {
+            newPos = resourceManager.SceneLuas[sceneId].scene_config.born_pos;
+            session.player.Pos = newPos;
+        } 
+        else
+        {
+            newPos = oldPos;
+        }
 
         this.SceneId = sceneId;
         this.Scene = new(sceneId); // will write later
@@ -168,8 +174,8 @@ public class Player
             SceneId = sceneId,
             Pos = Vector3ToVector(newPos),
             SceneBeginTime = (ulong)DateTimeOffset.Now.ToUnixTimeMilliseconds(),
-            Type = EnterType.EnterSelf,
-            PrevPos = oldPos != newPos ? Vector3ToVector(oldPos) : null,
+            Type = enterType,
+            PrevPos = Vector3ToVector(oldPos),
             EnterSceneToken = 69,
             WorldLevel = 1,
             TargetUid = this.Uid

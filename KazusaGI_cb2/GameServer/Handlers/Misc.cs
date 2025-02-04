@@ -21,4 +21,20 @@ public class Misc
         };
         session.SendPacket(rsp);
     }
+
+    [Packet.PacketCmdId(PacketId.MarkMapReq)]
+    public static void HandleMarkMapReq(Session session, Packet packet)
+    {
+        MarkMapReq req = packet.GetDecodedBody<MarkMapReq>();
+        MarkMapRsp rsp = new MarkMapRsp() { MarkLists = { req.Mark } };
+        session.SendPacket(rsp);
+    }
+    
+    [Packet.PacketCmdId(PacketId.PlayerSetPauseReq)]
+    public static void HandlePlayerSetPauseReq(Session session, Packet packet)
+    {
+        PlayerSetPauseReq req = packet.GetDecodedBody<PlayerSetPauseReq>();
+        PlayerSetPauseRsp rsp = new PlayerSetPauseRsp();
+        session.SendPacket(rsp);
+    }
 }
