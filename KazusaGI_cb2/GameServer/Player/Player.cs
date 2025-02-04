@@ -1,13 +1,16 @@
 ﻿using KazusaGI_cb2.GameServer.PlayerInfos;
 using KazusaGI_cb2.Protocol;
+using KazusaGI_cb2.Resource;
 using KazusaGI_cb2.Resource.Excel;
 using System;
 using System.Numerics;
+using static System.Collections.Specialized.BitVector32;
 
 namespace KazusaGI_cb2.GameServer;
 
 public class Player
 {
+    private Logger logger = new("Player");
     public string Name { get; set; }
     public int Level { get; set; }
     public uint Uid { get; set; }
@@ -19,6 +22,7 @@ public class Player
     public uint WorldLevel { get; set; } = 1;
     public Scene Scene { get; set; }
     public Vector3 Pos { get; private set; }
+    public Vector3 Rot { get; private set; } // wont actually be used except for scene tp
     public Gender PlayerGender { get; private set; } = Gender.Female;
 
     public Player(uint uid)
@@ -31,12 +35,12 @@ public class Player
         this.avatarDict = new();
         this.weaponDict = new();
         this.teamList = new();
-        this.Pos = new()
+        this.Pos = new();
+        this.Rot = new();
+        for (int i = 0; i < 4; i++) // maybe later change to use config for max teams amount
         {
-            X = 2747.6F,
-            Y = 194.6F,
-            Z = -1719.4F
-        };
+            this.teamList.Add(new PlayerTeam());
+        }
     }
 
     public void AddAllAvatars(Session session)
@@ -47,7 +51,7 @@ public class Player
             PlayerAvatar playerAvatar = new(session, avatarExcelRow.Key);
             if (avatarExcelRow.Key == 10000007)
             {
-                this.teamList.Add(new PlayerTeam(session, playerAvatar));
+                this.teamList[0] = new PlayerTeam(session, playerAvatar);
             }
             AvatarEntity avatarEntity = new AvatarEntity(session, playerAvatar);
             session.entityMap.Add(avatarEntity.EntityId, avatarEntity);
@@ -125,16 +129,47 @@ public class Player
         };
     }
 
+    public void SetRot(Vector3 rot)
+    {
+        this.Rot = rot;
+    }
+
+    public void TeleportToPos(Session session, Vector3 pos, bool isSilent = false)
+    {
+        this.Pos = pos;
+        if (!isSilent)
+        {
+            this.EnterScene(session, this.SceneId);
+        }
+    }
+
     public void EnterScene(Session session, uint sceneId)
     {
+        ResourceManager resourceManager = MainApp.resourceManager;
+        Vector3 oldPos = session.player!.Pos;
+
+        this.TeleportToPos(session, resourceManager.SceneLuas[sceneId].scene_config.born_pos, true);
+
+        resourceManager.ScenePoints.TryGetValue(sceneId, out ScenePoint? point);
+        if (point == null)
+        {
+            logger.LogError($"Scene {sceneId} not found, please verify your resources");
+            return;
+        }
+
+
+        Vector3 newPos = resourceManager.SceneLuas[sceneId].scene_config.born_pos;
+        session.player.Pos = newPos;
+
         this.SceneId = sceneId;
         this.Scene = new(sceneId); // will write later
         PlayerEnterSceneNotify enterSceneNotify = new()
         {
             SceneId = sceneId,
-            Pos = Vector3ToVector(this.Pos),
+            Pos = Vector3ToVector(newPos),
             SceneBeginTime = (ulong)DateTimeOffset.Now.ToUnixTimeMilliseconds(),
             Type = EnterType.EnterSelf,
+            PrevPos = oldPos != newPos ? Vector3ToVector(oldPos) : null,
             EnterSceneToken = 69,
             WorldLevel = 1,
             TargetUid = this.Uid
@@ -147,7 +182,7 @@ public class Player
         AvatarDataNotify dataNotify = new AvatarDataNotify()
         {
             CurAvatarTeamId = this.TeamIndex,
-            ChooseAvatarGuid = GetCurrentLineup().Leader.Guid
+            ChooseAvatarGuid = GetCurrentLineup().Leader!.Guid
         };
         for (uint i = 0; i < this.teamList.Count; i++)
         {

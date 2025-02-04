@@ -10,7 +10,7 @@ namespace KazusaGI_cb2.GameServer.PlayerInfos;
 public class PlayerTeam
 {
     // private static ResourceManager resourceManager = MainApp.resourceManager;
-    public PlayerAvatar Leader { get; set; }
+    public PlayerAvatar? Leader { get; set; }
     public List<PlayerAvatar> Avatars { get; set; }
     // add affixes later TODO
 
@@ -23,7 +23,10 @@ public class PlayerTeam
         this.Leader = leader;
     }
 
-    public PlayerTeam(Session session) { }
+    public PlayerTeam() 
+    {
+        this.Avatars = new();
+    }
 
     public void RemoveAvatar(Session session, PlayerAvatar avatar)
     {

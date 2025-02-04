@@ -30,7 +30,7 @@ public class AvatarEntity : Entity
             MotionInfo = new MotionInfo()
             {
                 Pos = session.player!.Vector3ToVector(session.player.Pos),
-                Rot = new Protocol.Vector(),
+                Rot = session.player!.Vector3ToVector(session.player.Rot),
                 Speed = new Protocol.Vector()
             },
             LifeState = DbInfo.Hp > 0 ? (uint)1 : 0,

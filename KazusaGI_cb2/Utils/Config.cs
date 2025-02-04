@@ -12,8 +12,6 @@ public class Config
     public KeyStoreInfo KeyStore { get; set; } = new();
     public LogOptionInfo LogOption { get; set; } = new();
 
-    private readonly string _path = "./config.json";
-
     // check if config file exists
     public static Config Load(string filePath = "config.json")
     {

@@ -15,6 +15,8 @@ public class ResourceManager
     public Dictionary<uint, AvatarSkillExcelConfig> AvatarSkillExcel { get; set; }
     public Dictionary<uint, Dictionary<uint, ProudSkillExcelConfig>> ProudSkillExcel { get; set; }
     public Dictionary<uint, WeaponExcelConfig> WeaponExcel { get; set; }
+    public Dictionary<uint, ScenePoint> ScenePoints { get; set; }
+    public Dictionary<uint, SceneLua> SceneLuas { get; set; }
 
     public ResourceManager(string baseResourcePath = "resources")
     {

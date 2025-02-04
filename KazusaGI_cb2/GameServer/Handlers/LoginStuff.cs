@@ -3,6 +3,8 @@ using KazusaGI_cb2.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using System.Resources;
 using System.Runtime;
 using System.Text;
 using static KazusaGI_cb2.Utils.Crypto;
@@ -62,7 +64,7 @@ public class LoginStuff
         List<AvatarEntity> avatarEntities = session.entityMap.Values
                 .OfType<AvatarEntity>()
                 .ToList();
-        PlayerAvatar currentAvatar = session.player!.GetCurrentLineup().Leader;
+        PlayerAvatar currentAvatar = session.player!.GetCurrentLineup().Leader!;
         AvatarEntity currentAvatarEntity = avatarEntities.First(c => c.DbInfo == currentAvatar);
         SceneEntityInfo entityInfo = currentAvatarEntity.ToSceneEntityInfo(session);
         sceneEntityAppearNotify.EntityLists.Add(entityInfo);
@@ -74,7 +76,7 @@ public class LoginStuff
         {
             Uid = session.player.Uid,
             Pos = session.player.Vector3ToVector(session.player.Pos),
-            Rot = new Vector()
+            Rot = session.player!.Vector3ToVector(session.player.Rot)
         });
         session.SendPacket(sceneEntityAppearNotify);
         session.SendPacket(scenePlayerLocationNotify);
@@ -163,6 +165,10 @@ public class LoginStuff
             TargetUid = session.player!.Uid
         };
 
+        Vector3 targetPos = MainApp.resourceManager.SceneLuas[session.player.SceneId].scene_config.born_pos;
+        session.player.TeleportToPos(session, targetPos, true);
+        session.player.SetRot(MainApp.resourceManager.SceneLuas[session.player.SceneId].scene_config.born_rot);
+
         OpenStateUpdateNotify OpenStateUpdateNotify = new OpenStateUpdateNotify();
 
         for (uint i = 0; i < 600; i++)
@@ -224,7 +230,7 @@ public class LoginStuff
         session.SendPacket(playerStoreNotify);
         session.SendPacket(playerDataNotify);
         session.player.SendAvatarDataNotify(session);
-        session.player.EnterScene(session, 3);
+        session.player.EnterScene(session, session.player.SceneId);
         session.SendPacket(rsp);
     }
 

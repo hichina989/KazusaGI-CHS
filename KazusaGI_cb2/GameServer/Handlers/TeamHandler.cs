@@ -24,7 +24,7 @@ public class TeamHandler
         };
 
         PlayerTeam targetTeam = session.player!.GetCurrentLineup();
-        PlayerAvatar oldTeamLeader = targetTeam.Leader; // old one
+        PlayerAvatar oldTeamLeader = targetTeam.Leader!; // old one
         PlayerAvatar newLeaderAvatar = session.player.avatarDict[req.Guid]; // new one
 
         AvatarEntity oldLeaderEntity = session.player!.FindEntityByPlayerAvatar(session, oldTeamLeader)!;
@@ -90,7 +90,7 @@ public class TeamHandler
             .ToList(); // get all current avatar entities
 
 
-        PlayerAvatar oldTeamLeader = targetTeam.Leader; // old one
+        PlayerAvatar oldTeamLeader = targetTeam.Leader!; // old one
         PlayerAvatar newLeaderAvatar = session.player.avatarDict[req.CurAvatarGuid]; // new one
 
         // its leader

@@ -1,6 +1,9 @@
 ﻿using KazusaGI_cb2.WebServer;
 using KazusaGI_cb2.Resource;
-using System.Threading;
+using KazusaGI_cb2.Command;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
+using System.IO.Pipes;
 
 namespace KazusaGI_cb2;
 
@@ -17,5 +20,7 @@ public class MainApp
         webServerThread.Start();
         Thread gameServerThread = new Thread(() => GameServer.GameServerManager.StartLoop());
         gameServerThread.Start();
+        Thread serverThread = new Thread(() => KazusaConsoleServer.StartLoop());
+        serverThread.Start();
     }
 }

@@ -56,3 +56,11 @@ public enum AvatarIdentityType
     AVATAR_IDENTITY_MASTER = 0,
     AVATAR_IDENTITY_NORMAL = 1
 }
+
+public enum ScenePointType
+{
+    NORMAL = 0,
+    TOWER = 1,
+    PORTAL = 2,
+    Other = 3
+}
