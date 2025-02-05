@@ -54,7 +54,7 @@ public class Player
                 this.teamList[0] = new PlayerTeam(session, playerAvatar);
             }
             AvatarEntity avatarEntity = new AvatarEntity(session, playerAvatar);
-            session.entityMap.Add(avatarEntity.EntityId, avatarEntity);
+            session.entityMap.Add(avatarEntity._EntityId, avatarEntity);
             session.player!.avatarDict.Add(playerAvatar.Guid, playerAvatar);
         }
     }
@@ -72,7 +72,7 @@ public class Player
         
         PlayerEnterSceneInfoNotify notify = new PlayerEnterSceneInfoNotify()
         {
-            CurAvatarEntityId = FindEntityByPlayerAvatar(session, GetCurrentLineup().Leader)!.EntityId,
+            CurAvatarEntityId = FindEntityByPlayerAvatar(session, GetCurrentLineup().Leader)!._EntityId,
             TeamEnterInfo = new TeamEnterSceneInfo()
             {
                 TeamAbilityInfo = new(),
@@ -90,7 +90,7 @@ public class Player
             notify.AvatarEnterInfoes.Add(new AvatarEnterSceneInfo()
             {
                 AvatarGuid = playerAvatar.Guid,
-                AvatarEntityId = FindEntityByPlayerAvatar(session, playerAvatar)!.EntityId,
+                AvatarEntityId = FindEntityByPlayerAvatar(session, playerAvatar)!._EntityId,
                 WeaponGuid = playerAvatar.EquipGuid,
                 WeaponEntityId = weaponDict[playerAvatar.EquipGuid].WeaponEntityId
             });
@@ -109,7 +109,7 @@ public class Player
             notify.SceneTeamAvatarLists.Add(new SceneTeamAvatar()
             {
                 AvatarGuid = playerAvatar.Guid,
-                EntityId = avatarEntities.First(c => c.DbInfo == playerAvatar).EntityId,
+                EntityId = avatarEntities.First(c => c.DbInfo == playerAvatar)._EntityId,
                 AvatarInfo = playerAvatar.ToAvatarInfo(session),
                 PlayerUid = this.Uid,
                 SceneId = session.player!.SceneId,
@@ -117,16 +117,6 @@ public class Player
             });
         }
         session.SendPacket(notify);
-    }
-
-    public Protocol.Vector Vector3ToVector(Vector3 pos)
-    {
-        return new Protocol.Vector()
-        {
-            X = pos.X,
-            Y = pos.Y,
-            Z = pos.Z
-        };
     }
 
     public void SetRot(Vector3 rot)
@@ -172,10 +162,10 @@ public class Player
         PlayerEnterSceneNotify enterSceneNotify = new()
         {
             SceneId = sceneId,
-            Pos = Vector3ToVector(newPos),
+            Pos = Session.Vector3ToVector(newPos),
             SceneBeginTime = (ulong)DateTimeOffset.Now.ToUnixTimeMilliseconds(),
             Type = enterType,
-            PrevPos = Vector3ToVector(oldPos),
+            PrevPos = Session.Vector3ToVector(oldPos),
             EnterSceneToken = 69,
             WorldLevel = 1,
             TargetUid = this.Uid

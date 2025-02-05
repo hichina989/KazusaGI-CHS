@@ -51,8 +51,23 @@ public class Session
     public SceneEntityInfo CreateSceneEntityInfoFromPlayerAvatar(Session session, PlayerAvatar playerAvatar)
     {
         AvatarEntity avatarEntity = new AvatarEntity(session, playerAvatar);
-        this.entityMap.Add(avatarEntity.EntityId, avatarEntity);
+        this.entityMap.Add(avatarEntity._EntityId, avatarEntity);
         return avatarEntity.ToSceneEntityInfo(session);
+    }
+
+    public static Vector3 VectorProto2Vector3(Protocol.Vector vectorProto)
+    {
+        return new Vector3(vectorProto.X, vectorProto.Y, vectorProto.Z);
+    }
+
+    public static Protocol.Vector Vector3ToVector(Vector3 pos)
+    {
+        return new Protocol.Vector()
+        {
+            X = pos.X,
+            Y = pos.Y,
+            Z = pos.Z
+        };
     }
 
     public ulong GetGuid()
@@ -60,6 +75,7 @@ public class Session
         lastGuid++;
         return lastGuid;
     }
+
     public uint GetEntityId(ProtEntityType type)
     {
         lastEntityId++;

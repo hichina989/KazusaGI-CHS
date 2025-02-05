@@ -9,14 +9,14 @@ namespace KazusaGI_cb2.GameServer;
 
 public class Entity
 {
-    public uint EntityId { get; private set; }
+    public uint _EntityId { get; set; }
     public Vector3 Position { get; set; }
+    public Session session { get; set; }
 
     public Entity(Session session, Vector3? position)
     {
-        this.EntityId = session.GetEntityId(Protocol.ProtEntityType.ProtEntityAvatar);
-        this.Position = position ?? new Vector3(0, 0, 0);
-
+        this.Position = position ?? session.player!.Pos;
+        this.session = session;
     }
 
 }

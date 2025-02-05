@@ -20,21 +20,16 @@ public class Scene
         {
             if (session.entityMap.ContainsKey(move.EntityId))
             {
-                session.entityMap[move.EntityId].Position = VectorProto2Vector3(move.MotionInfo.Pos);
-                if (session.entityMap[move.EntityId].GetType() == typeof(AvatarEntity))
+                session.entityMap[move.EntityId].Position = Session.VectorProto2Vector3(move.MotionInfo.Pos);
+                if (session.entityMap[move.EntityId] is AvatarEntity)
                 {
-                    session.player!.TeleportToPos(session, VectorProto2Vector3(move.MotionInfo.Pos), true);
-                    session.player!.SetRot(VectorProto2Vector3(move.MotionInfo.Rot));
+                    session.player!.TeleportToPos(session, Session.VectorProto2Vector3(move.MotionInfo.Pos), true);
+                    session.player!.SetRot(Session.VectorProto2Vector3(move.MotionInfo.Rot));
                     // session.c.LogWarning($"Player {session.player.Uid} moved to {move.MotionInfo.Pos.X}, {move.MotionInfo.Pos.Y}, {move.MotionInfo.Pos.Z}");
                 }
             }
         }
         session.SendPacket(rsp);
-    }
-
-    public static Vector3 VectorProto2Vector3(Protocol.Vector vectorProto)
-    {
-        return new Vector3(vectorProto.X, vectorProto.Y, vectorProto.Z);
     }
 
     [Packet.PacketCmdId(PacketId.SceneGetAreaExplorePercentReq)]

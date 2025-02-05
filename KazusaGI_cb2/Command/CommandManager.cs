@@ -49,6 +49,11 @@ public class CommandManager
                 logger.LogSuccess($"Set target session to {args[0]}");
             }
             return;
+        } else if (args.Length == 0 && GameServerManager.sessions.Count == 1)
+        {
+            this.targetSession = GameServerManager.sessions.First();
+            logger.LogSuccess($"Set target session to {this.targetSession._peer}");
+            return;
         }
 
         if (commandName == "sessions")
@@ -75,7 +80,7 @@ public class CommandManager
                 var method = type.GetMethod("Execute", BindingFlags.Public | BindingFlags.Static);
                 if (method != null)
                 {
-                    var parameters = new object[] { args, targetSession };
+                    var parameters = new object[] { args, targetSession! };
                     method.Invoke(null, parameters);
                     return;
                 }

@@ -32,7 +32,7 @@ public class TeamHandler
 
         session.SendPacket(new SceneEntityDisappearNotify()
         {
-            EntityLists = { oldLeaderEntity.EntityId },
+            EntityLists = { oldLeaderEntity._EntityId },
             DisappearType = VisionType.VisionReplace
         });
 
@@ -110,7 +110,7 @@ public class TeamHandler
             notify.SceneTeamAvatarLists.Add(new SceneTeamAvatar()
             {
                 AvatarGuid = targetAvatar.Guid,
-                EntityId = avatarEntities.First(c => c.DbInfo == targetAvatar).EntityId,
+                EntityId = avatarEntities.First(c => c.DbInfo == targetAvatar)._EntityId,
                 AvatarInfo = targetAvatar.ToAvatarInfo(session),
                 PlayerUid = session.player.Uid,
                 SceneId = session.player!.SceneId,
@@ -124,7 +124,7 @@ public class TeamHandler
         {
             session.SendPacket(new SceneEntityDisappearNotify()
             {
-                EntityLists = { oldLeaderEntity.EntityId },
+                EntityLists = { oldLeaderEntity._EntityId },
                 DisappearType = VisionType.VisionReplace
             });
 

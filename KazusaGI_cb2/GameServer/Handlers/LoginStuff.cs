@@ -75,8 +75,8 @@ public class LoginStuff
         scenePlayerLocationNotify.PlayerLocLists.Add(new PlayerLocationInfo()
         {
             Uid = session.player.Uid,
-            Pos = session.player.Vector3ToVector(session.player.Pos),
-            Rot = session.player!.Vector3ToVector(session.player.Rot)
+            Pos = Session.Vector3ToVector(session.player.Pos),
+            Rot = Session.Vector3ToVector(session.player.Rot),
         });
         session.SendPacket(sceneEntityAppearNotify);
         session.SendPacket(scenePlayerLocationNotify);

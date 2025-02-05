@@ -16,6 +16,7 @@ public class AvatarEntity : Entity
     public AvatarEntity(Session session, PlayerAvatar playerAvatar, Vector3? position = null)
         : base(session, position)
     {
+        this._EntityId = session.GetEntityId(Protocol.ProtEntityType.ProtEntityAvatar);
         this.DbInfo = playerAvatar;
     }
 
@@ -25,13 +26,14 @@ public class AvatarEntity : Entity
         SceneEntityInfo ret = new SceneEntityInfo()
         {
             EntityType = ProtEntityType.ProtEntityAvatar,
-            EntityId = this.EntityId,
+            EntityId = this._EntityId,
             Avatar = DbInfo.ToSceneAvatarInfo(session),
             MotionInfo = new MotionInfo()
             {
-                Pos = session.player!.Vector3ToVector(session.player.Pos),
-                Rot = session.player!.Vector3ToVector(session.player.Rot),
-                Speed = new Protocol.Vector()
+                Pos = Session.Vector3ToVector(session.player.Pos),
+                Rot = Session.Vector3ToVector(session.player.Rot),
+                Speed = new Protocol.Vector(),
+                State = MotionState.MotionFallOnGround
             },
             LifeState = DbInfo.Hp > 0 ? (uint)1 : 0,
             AiInfo = new SceneEntityAiInfo()

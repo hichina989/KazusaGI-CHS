@@ -34,6 +34,11 @@ public class ResourceLoader
             File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "AvatarSkillExcelConfigData.json"))
         )!.ToDictionary(data => data.id);
 
+    private Dictionary<uint, GadgetExcelConfig> LoadGadgetExcel() =>
+        JsonConvert.DeserializeObject<List<GadgetExcelConfig>>(
+            File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "GadgetExcelConfigData.json"))
+        )!.ToDictionary(data => data.id);
+
     private Dictionary<uint, Dictionary<uint, ProudSkillExcelConfig>> LoadProudSkillExcel() =>
         JsonConvert.DeserializeObject<List<ProudSkillExcelConfig>>(
             File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "ProudSkillExcelConfigData.json"))
@@ -42,6 +47,11 @@ public class ResourceLoader
             group => group.Key,
             group => group.ToDictionary(config => config.level)
         );
+
+    private Dictionary<uint, MonsterExcelConfig> loadMonsterExcel() =>
+        JsonConvert.DeserializeObject<List<MonsterExcelConfig>>(
+            File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "MonsterExcelConfigData.json"))
+        )!.ToDictionary(data => data.id);
 
     private Dictionary<uint, WeaponExcelConfig> LoadWeaponExcel() =>
         JsonConvert.DeserializeObject<List<WeaponExcelConfig>>(
@@ -156,5 +166,7 @@ public class ResourceLoader
         _resourceManager.ProudSkillExcel = this.LoadProudSkillExcel();
         _resourceManager.WeaponExcel = this.LoadWeaponExcel();
         _resourceManager.ScenePoints = this.LoadScenePoints();
+        _resourceManager.MonsterExcel = this.loadMonsterExcel();
+        _resourceManager.GadgetExcel = this.LoadGadgetExcel();
     }
 }

@@ -1,0 +1,35 @@
+﻿using KazusaGI_cb2.Protocol;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace KazusaGI_cb2.GameServer.Handlers;
+
+public class Entity
+{
+    [Packet.PacketCmdId(PacketId.QueryPathReq)]
+    public static void HandleQueryPathReq(Session session, Packet packet)
+    {
+
+        QueryPathReq req = packet.GetDecodedBody<QueryPathReq>();
+        QueryPathRsp rsp = new QueryPathRsp();
+        if (req.DestinationPos.Count > 0)
+        {
+            rsp.Corners.Add(req.SourcePos);
+            rsp.Corners.Add(req.DestinationPos[0]);
+            rsp.QueryId = req.QueryId;
+            rsp.QueryStatus = QueryPathRsp.PathStatusType.StatusSucc;
+        }
+        session.SendPacket(rsp);
+    }
+
+    [Packet.PacketCmdId(PacketId.SeeMonsterReq)]
+    public static void HandleSeeMonsterReq(Session session, Packet packet)
+    {
+        SeeMonsterReq req = packet.GetDecodedBody<SeeMonsterReq>();
+        SeeMonsterRsp rsp = new SeeMonsterRsp();
+        session.SendPacket(rsp);
+    }
+}

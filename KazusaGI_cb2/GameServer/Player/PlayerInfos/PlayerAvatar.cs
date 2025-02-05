@@ -164,37 +164,33 @@ public class PlayerAvatar
     public void AddAllFightProps(Dictionary<uint, float> keyValuePairs)
     {
         AvatarExcelConfig avatarExcel = MainApp.resourceManager.AvatarExcel[this.AvatarId];
-        AddFightPropMap(FightProp.FIGHT_PROP_BASE_HP, avatarExcel.hpBase, keyValuePairs);
         AddFightPropMap(FightProp.FIGHT_PROP_MAX_HP, this.MaxHp, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_HP_PERCENT, 0.0f, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_CUR_SPEED, 0.0f, keyValuePairs);
         AddFightPropMap(FightProp.FIGHT_PROP_BASE_DEFENSE, avatarExcel.defenseBase, keyValuePairs);
         AddFightPropMap(FightProp.FIGHT_PROP_BASE_ATTACK, avatarExcel.attackBase, keyValuePairs);
         AddFightPropMap(FightProp.FIGHT_PROP_CRITICAL, avatarExcel.critical, keyValuePairs);
         AddFightPropMap(FightProp.FIGHT_PROP_CRITICAL_HURT, avatarExcel.criticalHurt, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_CHARGE_EFFICIENCY, 2, keyValuePairs); // its a ps, let people have fun
-        AddFightPropMap(FightProp.FIGHT_PROP_MAX_ROCK_ENERGY, 1, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_MAX_ICE_ENERGY, 1, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_MAX_WATER_ENERGY, 1, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_MAX_FIRE_ENERGY, 1, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_MAX_ELEC_ENERGY, 1, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_MAX_GRASS_ENERGY, 1, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_MAX_WIND_ENERGY, 1, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_CUR_ROCK_ENERGY, 1, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_CUR_ICE_ENERGY, 1, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_CUR_WATER_ENERGY, 1, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_CUR_ELEC_ENERGY, 1, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_CUR_FIRE_ENERGY, 1, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_CUR_WIND_ENERGY, 1, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_CUR_GRASS_ENERGY, 1, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_CHARGE_EFFICIENCY, 2.0f, keyValuePairs); // its a ps, let people have fun
+        AddFightPropMap(FightProp.FIGHT_PROP_MAX_ROCK_ENERGY, 100.0f, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_MAX_ICE_ENERGY, 100.0f, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_MAX_WATER_ENERGY, 100.0f, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_MAX_FIRE_ENERGY, 100.0f, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_MAX_ELEC_ENERGY, 100.0f, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_MAX_GRASS_ENERGY, 100.0f, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_MAX_WIND_ENERGY, 100.0f, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_CUR_ROCK_ENERGY, 100.0f, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_CUR_ICE_ENERGY, 100.0f, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_CUR_WATER_ENERGY, 100.0f, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_CUR_ELEC_ENERGY, 100.0f, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_CUR_FIRE_ENERGY, 100.0f, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_CUR_WIND_ENERGY, 100.0f, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_CUR_GRASS_ENERGY, 100.0f, keyValuePairs);
         AddFightPropMap(FightProp.FIGHT_PROP_CUR_HP, this.Hp, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_BASE_HP, avatarExcel.hpBase, keyValuePairs);
         AddFightPropMap(FightProp.FIGHT_PROP_CUR_DEFENSE, this.Def, keyValuePairs);
         AddFightPropMap(FightProp.FIGHT_PROP_CUR_ATTACK, this.Atk, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_SPEED_PERCENT, 1, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_SKILL_CD_MINUS_RATIO, 1, keyValuePairs);
-    }
-
-    private void AddPropMap(PropType propType, int ival, Dictionary<uint, PropValue> keyValuePairs)
-    {
-        AddPropMap(propType, (uint)ival, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_SKILL_CD_MINUS_RATIO, 2.0f, keyValuePairs); // its a ps, let people have fun
     }
 
     private void AddPropMap(PropType propType, uint ival, Dictionary<uint,PropValue> keyValuePairs)
