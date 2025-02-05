@@ -26,7 +26,11 @@ public class Misc
     public static void HandleMarkMapReq(Session session, Packet packet)
     {
         MarkMapReq req = packet.GetDecodedBody<MarkMapReq>();
-        MarkMapRsp rsp = new MarkMapRsp() { MarkLists = { req.Mark } };
+        MarkMapRsp rsp = new MarkMapRsp();
+        if (req.Mark != null)
+        {
+            rsp.MarkLists.Add(req.Mark);
+        }
         session.SendPacket(rsp);
     }
     
