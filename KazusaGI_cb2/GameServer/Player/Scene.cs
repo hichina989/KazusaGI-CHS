@@ -118,9 +118,12 @@ public class Scene
             {
                 if (!isInRange(monsterLua.pos, player.Pos, defaultRange) && this.alreadySpawnedMonsters.Contains(monsterLua))
                 {
-                    MonsterEntity monsterEntity = this.MonsterEntity2DespawnMonster(monsterLua)!;
-                    sceneEntityDisappearNotify.EntityLists.Add(monsterEntity._EntityId);
-                    this.alreadySpawnedMonsters.Remove(monsterLua); // so it can respawn when we come back to the are
+                    MonsterEntity? monsterEntity = this.MonsterEntity2DespawnMonster(monsterLua);
+                    if (monsterEntity != null)
+                    {
+                        sceneEntityDisappearNotify.EntityLists.Add(monsterEntity._EntityId);
+                        this.alreadySpawnedMonsters.Remove(monsterLua); // so it can respawn when we come back to the are
+                    }
                 }
             }
         }
@@ -152,9 +155,12 @@ public class Scene
             {
                 if (!isInRange(gadgetLua.pos, player.Pos, defaultRange) && this.alreadySpawnedGadgets.Contains(gadgetLua))
                 {
-                    GadgetEntity gadgetEntity = this.GadgetEntity2DespawnGadget(gadgetLua)!;
-                    sceneEntityDisappearNotify.EntityLists.Add(gadgetEntity._EntityId);
-                    this.alreadySpawnedGadgets.Remove(gadgetLua); // so it can respawn when we come back to the are
+                    GadgetEntity? gadgetEntity = this.GadgetEntity2DespawnGadget(gadgetLua);
+                    if (gadgetEntity != null)
+                    {
+                        sceneEntityDisappearNotify.EntityLists.Add(gadgetEntity._EntityId);
+                        this.alreadySpawnedGadgets.Remove(gadgetLua); // so it can respawn when we come back to the are
+                    }
                 }
             }
         }
