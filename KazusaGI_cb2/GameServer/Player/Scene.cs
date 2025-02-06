@@ -215,7 +215,7 @@ public class Scene
         // Process monsters
         foreach (MonsterLua monsterLua in sceneGroupLua.monsters)
         {
-            if (isInRange(monsterLua.pos, player.Pos, 50f))
+            if (isInRange(monsterLua.pos, player.Pos, 50f) && !this.alreadySpawnedMonsters.Contains(monsterLua))
             {
                 uint MonsterId = monsterLua.monster_id;
                 MonsterExcelConfig monster = resourceManager.MonsterExcel[MonsterId];
@@ -241,7 +241,7 @@ public class Scene
         // Process gadgets
         foreach (GadgetLua gadgetLua in sceneGroupLua.gadgets)
         {
-            if (isInRange(gadgetLua.pos, player.Pos, 50f))
+            if (isInRange(gadgetLua.pos, player.Pos, 50f) && !this.alreadySpawnedGadgets.Contains(gadgetLua))
             {
                 uint GadgetID = gadgetLua.gadget_id;
                 Vector3 pos = gadgetLua.pos;
