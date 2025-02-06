@@ -28,7 +28,7 @@ public class LoginStuff
             GmUid = Convert.ToUInt32(req.AccountUid),
             SecretKeySeed = Convert.ToUInt64(req.AccountUid)
         };
-        session.player = new Player(69);
+        session.player = new Player(session, 69);
         session.player.AddAllAvatars(session);
         session.SendPacket(rsp);
         session.key = NewKey(Convert.ToUInt64(req.AccountUid));
@@ -153,6 +153,7 @@ public class LoginStuff
         session.player.SendSceneTeamUpdateNotify(session);
         session.player.SendPlayerEnterSceneInfoNotify(session);
         session.SendPacket(new SceneInitFinishRsp());
+        session.player.Scene.isFinishInit = true;
     }
 
     [Packet.PacketCmdId(PacketId.PlayerLoginReq)]

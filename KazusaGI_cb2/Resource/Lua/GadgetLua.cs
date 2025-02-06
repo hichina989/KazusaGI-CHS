@@ -17,4 +17,8 @@ public class GadgetLua
     public uint route_id;
     // persistent
     public uint level;
+
+    // custom fields
+    public uint block_id;
+    public uint group_id;
 }

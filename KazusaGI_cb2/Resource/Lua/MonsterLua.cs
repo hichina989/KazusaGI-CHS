@@ -17,4 +17,8 @@ public class MonsterLua
     public bool isElite;
     public Vector3 pos;
     public Vector3 rot;
+
+    // custom fields
+    public uint block_id;
+    public uint group_id;
 }

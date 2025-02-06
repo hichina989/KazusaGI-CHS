@@ -46,7 +46,7 @@ public class MonsterEntity : Entity
                 Rot = _monsterInfo != null
                     ? Session.Vector3ToVector(_monsterInfo.rot) : Session.Vector3ToVector(this.Position),
                 Speed = new Protocol.Vector(),
-                State = MotionState.MotionFallOnGround
+                State = MotionState.MotionNone
             },
             LifeState = this.Hp > 0 ? (uint)1 : 0,
             AiInfo = new SceneEntityAiInfo()
@@ -64,9 +64,11 @@ public class MonsterEntity : Entity
             ConfigId = _monsterInfo != null ? _monsterInfo.config_id : 0,
             BornType = MonsterBornType.MonsterBornDefault,
             PoseId = _monsterInfo != null ? _monsterInfo.pose_id : 0,
+            BlockId = _monsterInfo != null ? _monsterInfo.block_id : 0,
+            GroupId = _monsterInfo != null ? _monsterInfo.group_id : 0,
         };
         ret.PropMaps.Add((uint)PropType.PROP_LEVEL, new PropValue() { Type = (uint)PropType.PROP_LEVEL, Ival = this.level, Val = this.level });
-        ret.PropMaps.Add((uint)PropType.PROP_EXP, new PropValue() { Type = (uint)PropType.PROP_EXP, Ival = 1, Val = this.level });
+        // ret.PropMaps.Add((uint)PropType.PROP_EXP, new PropValue() { Type = (uint)PropType.PROP_EXP, Ival = 1, Val = this.level });
         foreach (uint affixId in this.excelConfig.affix)
         {
             if (affixId == 0 && (this._monsterInfo != null && !this._monsterInfo.affix.Contains(affixId)))
@@ -77,6 +79,25 @@ public class MonsterEntity : Entity
         foreach (var prop in this.GetFightProps())
         {
             ret.FightPropMaps.Add(prop.Key, prop.Value);
+        }
+        if (this.excelConfig.equips.Count > 0)
+        {
+            foreach(uint equipId in this.excelConfig.equips)
+            {
+                if (equipId == 0)
+                    continue;
+                WeaponEntity weaponEntity = new WeaponEntity(session, equipId);
+                SceneWeaponInfo sceneWeaponInfo = new SceneWeaponInfo()
+                {
+                    EntityId = weaponEntity._EntityId,
+                    GadgetId = equipId,
+                    Guid = session.GetGuid(),
+                    Level = this.level,
+                    // ItemId = equipId,
+                };
+                sceneMonsterInfo.WeaponLists.Add(sceneWeaponInfo);
+                session.entityMap.Add(sceneWeaponInfo.EntityId, weaponEntity);
+            }
         }
         ret.Monster = sceneMonsterInfo;
         return ret;
@@ -114,7 +135,7 @@ public class MonsterEntity : Entity
         }
     }
 
-    public void Die()
+    public void Die(VisionType vision = VisionType.VisionDie)
     {
         this.Hp = 0; // for safety
         this.session!.SendPacket(new LifeStateChangeNotify()
@@ -126,7 +147,7 @@ public class MonsterEntity : Entity
         this.session!.SendPacket(new SceneEntityDisappearNotify()
         {
             EntityLists = { this._EntityId },
-            DisappearType = VisionType.VisionDie
+            DisappearType = vision
         });
         this.session!.entityMap.Remove(this._EntityId);
     }

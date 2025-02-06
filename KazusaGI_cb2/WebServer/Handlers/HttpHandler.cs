@@ -92,7 +92,7 @@ public class HttpHandler
         "sdkenv": "2",
         "checkdevice": "False",
         "loadPatch": "False",
-        "showexception": "true",
+        "showexception": "False",
         "regionConfig": "pm|fk|add",
         "downloadMode": "0",
     }
@@ -246,7 +246,7 @@ public class HttpHandler
             ClientConfig = new ClientCustomConfig()
             {
                 Sdkenv = "2",
-                Showexception = true
+                Showexception = false
             }
         };
 
@@ -277,7 +277,7 @@ public class HttpHandler
             ClientConfig = new ClientCustomConfig()
             {
                 Sdkenv = "2",
-                Showexception = true,
+                Showexception = false,
             },
         };
 

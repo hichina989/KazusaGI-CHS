@@ -3,11 +3,12 @@ using System;
 using KazusaGI_cb2.Utils;
 using System.Numerics;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using ProtoBuf;
+using Serilog;
 using Newtonsoft.Json;
 using KazusaGI_cb2.GameServer.PlayerInfos;
+using System.Linq;
 
 namespace KazusaGI_cb2.GameServer;
 
@@ -21,6 +22,13 @@ public class Session
     public byte[]? key;
     private ulong lastGuid = 0;
     private uint lastEntityId = 0;
+    private ILogger<Session> fileLogger;
+    private static readonly string logsFolder = "Logs";
+    private static readonly List<string> blacklist = new List<string>() { 
+        "SceneEntityAppearNotify", "AbilityInvocationsNotify", "ClientAbilitiesInitFinishCombineNotify",
+        "SceneEntitiesMovesReq", "SceneEntitiesMovesRsp", "EvtAnimatorParameterNotify", "QueryPathReq", "QueryPathRsp",
+        "EvtSetAttackTargetNotify"
+    };
 
     public Session(ENetClient client, IntPtr peer)
     {
@@ -28,6 +36,25 @@ public class Session
         _peer = peer;
         entityMap = new();
         c = new Logger($"Session {_peer}");
+        if (Path.Exists(logsFolder))
+            Directory.CreateDirectory(logsFolder);
+        Log.Logger = new LoggerConfiguration()
+                .WriteTo.File(Path.Combine(logsFolder, $"latest_{_peer}.log"), rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
+        // Create logger instance for the session
+        fileLogger = LoggerFactory.Create(builder =>
+        {
+            builder.AddFile(Path.Combine(logsFolder, $"session_{_peer}.log"));
+        }).CreateLogger<Session>();
+    }
+
+    public async Task LogToFileAsync(string message)
+    {
+        await Task.Run(() =>
+        {
+            fileLogger.LogInformation(message);
+        });
     }
 
     private string PacketToJson(Packet packet)
@@ -88,7 +115,11 @@ public class Session
         {
             return;
         }
-        c.LogPacket($"Received {(PacketId)packet.CmdId} {PacketToJson(packet)}");
+        string protoName = $"{(PacketId)packet.CmdId}";
+        string logStr = $"Received {protoName} {PacketToJson(packet)}";
+        if (!blacklist.Contains(protoName) && MainApp.config.LogOption.Packets)
+            c.LogInfo(logStr);
+        LogToFileAsync(logStr).Wait();
         var handler = HandlerFactory.GetHandler((PacketId)packet.CmdId);
         if (handler == null)
         {
@@ -108,7 +139,10 @@ public class Session
             PacketId packetId = (PacketId)Enum.Parse(typeof(PacketId), protoName);
             IntPtr packet = Packet.EncodePacket(this, (ushort)packetId, protoMessage);
             ENet.enet_peer_send(_peer, 0, packet);
-            c.LogInfo($"Sent {protoName} {JsonConvert.SerializeObject(protoMessage)}");
+            string logStr = $"Sent {protoName} {JsonConvert.SerializeObject(protoMessage)}";
+            if (!blacklist.Contains(protoName) && MainApp.config.LogOption.Packets)
+                c.LogInfo(logStr);
+            LogToFileAsync(logStr).Wait();
             return true;
         }
         catch (Exception e)

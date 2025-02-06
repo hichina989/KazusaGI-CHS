@@ -46,7 +46,7 @@ public class GadgetEntity : Entity
                 Rot = _gadgetLua != null
                     ? Session.Vector3ToVector(_gadgetLua.rot) : Session.Vector3ToVector(this.Position),
                 Speed = new Protocol.Vector(),
-                State = MotionState.MotionFallOnGround
+                State = MotionState.MotionNone
             },
             LifeState = this.Hp > 0 ? (uint)1 : 0,
             AiInfo = new SceneEntityAiInfo()
@@ -62,11 +62,12 @@ public class GadgetEntity : Entity
             GadgetState = 0, // todo: implement states
             IsEnableInteract = this.gadgetExcel.isInteractive,
             ConfigId = _gadgetLua != null ? _gadgetLua.config_id : 0,
+            GadgetId = this._gadgetId,
             BornType = GadgetBornType.GadgetBornGadget,
             // todo: gadget type
         };
         ret.PropMaps.Add((uint)PropType.PROP_LEVEL, new PropValue() { Type = (uint)PropType.PROP_LEVEL, Ival = this.level, Val = this.level });
-        ret.PropMaps.Add((uint)PropType.PROP_EXP, new PropValue() { Type = (uint)PropType.PROP_EXP, Ival = 1, Val = this.level });
+        // ret.PropMaps.Add((uint)PropType.PROP_EXP, new PropValue() { Type = (uint)PropType.PROP_EXP, Ival = 1, Val = this.level });
         foreach (var prop in this.GetFightProps())
         {
             ret.FightPropMaps.Add(prop.Key, prop.Value);

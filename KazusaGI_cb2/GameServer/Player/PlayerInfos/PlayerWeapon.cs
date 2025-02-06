@@ -23,6 +23,7 @@ public class PlayerWeapon
 
     public PlayerWeapon(Session session, uint WeaponId)
     {
+        WeaponEntity weaponEntity = new(session, WeaponId);
         WeaponExcelConfig weaponExcel = resourceManager.WeaponExcel[WeaponId];
         this.Guid = session.GetGuid();
         this.WeaponId = WeaponId;
@@ -30,8 +31,9 @@ public class PlayerWeapon
         this.Exp = 0;
         this.PromoteLevel = 1;
         this.GadgetId = weaponExcel.gadgetId;
-        this.WeaponEntityId = session.GetEntityId(ProtEntityType.ProtEntityGadget); // todo: make an actual entity
+        this.WeaponEntityId = weaponEntity._EntityId;
         session.player!.weaponDict.Add(this.Guid, this);
+        session.entityMap.Add(this.WeaponEntityId, weaponEntity);
     }
 
     public void EquipOnAvatar(PlayerAvatar avatar)

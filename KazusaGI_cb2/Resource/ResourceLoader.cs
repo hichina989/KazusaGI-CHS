@@ -132,7 +132,7 @@ public class ResourceLoader
                         max = Table2Vector3(c["max"])
                     });
                 }
-
+                sceneLuaConfig.scene_blocks = new Dictionary<int, SceneBlockLua>();
                 LoadSceneBlock(sceneDir, sceneId, sceneLuaConfig);
             }
 
@@ -156,7 +156,7 @@ public class ResourceLoader
 
     private void LoadSceneBlock(string sceneDir, uint sceneId, SceneLua sceneLuaConfig)
     {
-        Logger logger = new("SceneGroup Loader");
+        Logger logger = new("SceneBlock Loader");
         for (int i = 0; i < sceneLuaConfig.blocks.Count; i++)
         {
             SceneBlockLua sceneBlockLua = new SceneBlockLua();
@@ -172,9 +172,10 @@ public class ResourceLoader
                 LuaTable groups = (LuaTable)blockLua["groups"];
                 foreach (LuaTable group in groups.Values.Cast<LuaTable>())
                 {
+                    uint groupId = Convert.ToUInt32(group["id"]);
                     SceneGroupBasicLua sceneGroupBasicLua = new SceneGroupBasicLua()
                     {
-                        id = Convert.ToUInt32(group["id"]),
+                        id = groupId,
                         refresh_id = Convert.ToUInt32(group["refresh_id"]),
                         area = Convert.ToUInt32(group["area"]),
                         pos = Table2Vector3(group["pos"]),
@@ -189,13 +190,14 @@ public class ResourceLoader
                         + File.ReadAllText(Path.Combine(_baseResourcePath, LuaSubPath, "Config", "Json", "ConfigEntity.lua")) + "\n"
                         + File.ReadAllText(groupLuaPath);
 
-                    sceneBlockLua.scene_groups.Add(sceneGroupBasicLua.id, LoadSceneGroup(mainLuaString));
+                    sceneBlockLua.scene_groups.Add(sceneGroupBasicLua.id, LoadSceneGroup(mainLuaString, blockId, groupId));
                 }
             };
+            sceneLuaConfig.scene_blocks[blockId] = sceneBlockLua;
         }
     }
 
-    public SceneGroupLua LoadSceneGroup(string LuaFileContents)
+    public SceneGroupLua LoadSceneGroup(string LuaFileContents, int blockId, uint groupId)
     {
         SceneGroupLua sceneGroupLua_ = new SceneGroupLua();
         using (Lua sceneGroupLua = new Lua())
@@ -224,6 +226,9 @@ public class ResourceLoader
                     affix = monster["affix"] != null
                         ? new List<uint>(((LuaTable)monster["affix"]).Values.Cast<object>().Select(v => Convert.ToUInt32(v)))
                         : new List<uint>(),
+                    block_id = Convert.ToUInt32(blockId),
+                    group_id = groupId
+
                 };
                 sceneGroupLua_.monsters.Add(monsterLua);
             }
@@ -237,7 +242,9 @@ public class ResourceLoader
                     pos = Table2Vector3(gadget["pos"]),
                     rot = Table2Vector3(gadget["rot"]),
                     route_id = Convert.ToUInt32(gadget["route_id"]),
-                    level = Convert.ToUInt32(gadget["level"])
+                    level = Convert.ToUInt32(gadget["level"]),
+                    block_id = Convert.ToUInt32(blockId),
+                    group_id = groupId
                 });
             }
 

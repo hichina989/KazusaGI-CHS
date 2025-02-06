@@ -10,6 +10,7 @@ namespace KazusaGI_cb2.GameServer;
 
 public class Player
 {
+    private Session session { get; set; }
     private Logger logger = new("Player");
     public string Name { get; set; }
     public int Level { get; set; }
@@ -25,16 +26,18 @@ public class Player
     public Vector3 Rot { get; private set; } // wont actually be used except for scene tp
     public Gender PlayerGender { get; private set; } = Gender.Female;
 
-    public Player(uint uid)
+    public Player(Session session, uint uid)
     {
         Name = "KazusaPS";
         Level = 1;
         Uid = uid;
+        this.session = session;
 
         // Initialize the dictionaries, todo: automatically add everyhing
         this.avatarDict = new();
         this.weaponDict = new();
         this.teamList = new();
+        this.Scene = new Scene(session, this);
         this.Pos = new();
         this.Rot = new();
         for (int i = 0; i < 4; i++) // maybe later change to use config for max teams amount
@@ -135,6 +138,7 @@ public class Player
 
     public void EnterScene(Session session, uint sceneId, EnterType enterType = EnterType.EnterSelf)
     {
+        session.player!.Scene.isFinishInit = false;
         ResourceManager resourceManager = MainApp.resourceManager;
         Vector3 oldPos = session.player!.Pos;
         Vector3 newPos;
@@ -158,7 +162,7 @@ public class Player
         }
 
         this.SceneId = sceneId;
-        this.Scene = new(sceneId); // will write later
+        this.Scene = new(session, this);
         PlayerEnterSceneNotify enterSceneNotify = new()
         {
             SceneId = sceneId,

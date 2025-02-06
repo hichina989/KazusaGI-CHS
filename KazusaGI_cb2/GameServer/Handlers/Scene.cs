@@ -18,6 +18,11 @@ public class Scene
         SceneEntitiesMovesRsp rsp = new SceneEntitiesMovesRsp();
         foreach (EntityMoveInfo move in req.EntityMoveInfoLists)
         {
+            if (Session.VectorProto2Vector3(move.MotionInfo.Pos) == Vector3.Zero)
+            {
+                // may happen sometimes, may not. better be safe.
+                continue;
+            }
             if (session.entityMap.ContainsKey(move.EntityId))
             {
                 session.entityMap[move.EntityId].Position = Session.VectorProto2Vector3(move.MotionInfo.Pos);
@@ -25,6 +30,7 @@ public class Scene
                 {
                     session.player!.TeleportToPos(session, Session.VectorProto2Vector3(move.MotionInfo.Pos), true);
                     session.player!.SetRot(Session.VectorProto2Vector3(move.MotionInfo.Rot));
+                    session.player.Scene.UpdateOnMove();
                     // session.c.LogWarning($"Player {session.player.Uid} moved to {move.MotionInfo.Pos.X}, {move.MotionInfo.Pos.Y}, {move.MotionInfo.Pos.Z}");
                 }
             }
@@ -110,6 +116,30 @@ public class Scene
         {
             if (!rsp.AreaIdLists.Contains(scenePoint.areaId) && scenePoint.areaId != 0)
                 rsp.AreaIdLists.Add(scenePoint.areaId);
+        }
+        session.SendPacket(rsp);
+    }
+
+    [Packet.PacketCmdId(PacketId.SceneEntityDrownReq)]
+    public static void HandleSceneEntityDrownReq(Session session, Packet packet)
+    {
+        SceneEntityDrownReq req = packet.GetDecodedBody<SceneEntityDrownReq>();
+        SceneEntityDrownRsp rsp = new SceneEntityDrownRsp()
+        {
+            EntityId = req.EntityId
+        };
+
+        if (!session.entityMap.ContainsKey(req.EntityId)) // todo: prevent it from happening
+        {
+            session.SendPacket(rsp);
+            return;
+        }
+        object entity = session.entityMap[req.EntityId];
+        // todo: implement drowning for player
+        if (entity is MonsterEntity)
+        {
+            MonsterEntity monster = (MonsterEntity)entity;
+            monster.Die(VisionType.VisionMiss);
         }
         session.SendPacket(rsp);
     }

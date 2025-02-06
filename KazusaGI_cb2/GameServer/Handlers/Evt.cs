@@ -34,7 +34,7 @@ public class Evt
                 
                 foreach (var entity in session.entityMap)
                 {
-                    logger.LogError($"Entity: {entity.Key}");
+                    // logger.LogError($"Entity: {entity.Key}");
                 }
                 
                 continue;
@@ -88,6 +88,20 @@ public class Evt
     public static void HandleEvtAnimatorParameterNotify(Session session, Packet packet)
     {
         EvtAnimatorParameterNotify req = packet.GetDecodedBody<EvtAnimatorParameterNotify>();
+        session.SendPacket(req);
+    }
+
+    [Packet.PacketCmdId(PacketId.EvtEntityRenderersChangedNotify)]
+    public static void HandleEvtEntityRenderersChangedNotify(Session session, Packet packet)
+    {
+        EvtEntityRenderersChangedNotify req = packet.GetDecodedBody<EvtEntityRenderersChangedNotify>();
+        session.SendPacket(req);
+    }
+
+    [Packet.PacketCmdId(PacketId.EvtAiSyncSkillCdNotify)]
+    public static void HandleEvtAiSyncSkillCdNotify(Session session, Packet packet)
+    {
+        EvtAiSyncSkillCdNotify req = packet.GetDecodedBody<EvtAiSyncSkillCdNotify>();
         session.SendPacket(req);
     }
 

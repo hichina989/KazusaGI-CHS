@@ -30,7 +30,7 @@ public class AvatarEntity : Entity
             Avatar = DbInfo.ToSceneAvatarInfo(session),
             MotionInfo = new MotionInfo()
             {
-                Pos = Session.Vector3ToVector(session.player.Pos),
+                Pos = Session.Vector3ToVector(session.player!.Pos),
                 Rot = Session.Vector3ToVector(session.player.Rot),
                 Speed = new Protocol.Vector(),
                 State = MotionState.MotionFallOnGround
