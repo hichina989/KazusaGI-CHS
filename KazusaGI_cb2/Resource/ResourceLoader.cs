@@ -239,7 +239,7 @@ public class ResourceLoader
                 {
                     config_id = Convert.ToUInt32(gadget["config_id"]),
                     gadget_id = Convert.ToUInt32(gadget["gadget_id"]),
-                    pos = Table2Vector3(gadget["pos"]),
+                    pos = FixGadgetY(Table2Vector3(gadget["pos"])),
                     rot = Table2Vector3(gadget["rot"]),
                     route_id = Convert.ToUInt32(gadget["route_id"]),
                     level = Convert.ToUInt32(gadget["level"]),
@@ -277,6 +277,12 @@ public class ResourceLoader
             }
         }
         return sceneGroupLua_;
+    }
+
+    private Vector3 FixGadgetY(Vector3 pos)
+    {
+        pos.Y -= 1.0F; // :skull:
+        return pos;
     }
 
     private Vector3 Table2Vector3(object vectorTable)
