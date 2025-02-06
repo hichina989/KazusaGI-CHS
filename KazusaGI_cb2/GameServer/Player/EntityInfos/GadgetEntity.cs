@@ -28,7 +28,8 @@ public class GadgetEntity : Entity
         this._EntityId = session.GetEntityId(Protocol.ProtEntityType.ProtEntityGadget);
         this._gadgetId = gadgetId;
         this._gadgetLua = gadgetInfo;
-        this.level = gadgetInfo != null ? gadgetInfo.level : 1;
+        this.level = MainApp.resourceManager.WorldLevelExcel[session.player!.WorldLevel].monsterLevel;
+                    // gadgetInfo != null ? gadgetInfo.level : MainApp.resourceManager.WorldLevelExcel[session.player!.WorldLevel].monsterLevel;
         this.gadgetExcel = MainApp.resourceManager.GadgetExcel[gadgetId];
     }
 

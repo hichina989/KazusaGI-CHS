@@ -34,18 +34,19 @@ public class Spawn
             MonsterExcelConfig monster = resourceManager.MonsterExcel[monsterId];
 
             MonsterEntity monsterEntity = new MonsterEntity(session, monsterId, null, null);
+            SceneEntityInfo sceneEntityInfo = monsterEntity.ToSceneEntityInfo();
             session.entityMap.Add(monsterEntity._EntityId, monsterEntity);
 
             session.SendPacket(new SceneEntityAppearNotify()
             {
                 AppearType = VisionType.VisionNone,
-                EntityLists = { monsterEntity.ToSceneEntityInfo(session) }
+                EntityLists = { sceneEntityInfo }
             });
             EntityFightPropNotify entityFightPropNotify = new EntityFightPropNotify()
             {
                 EntityId = monsterEntity._EntityId
             };
-            foreach(KeyValuePair<uint,float> prop in monsterEntity.GetFightProps())
+            foreach(KeyValuePair<uint,float> prop in sceneEntityInfo.FightPropMaps)
             {
                 entityFightPropNotify.FightPropMaps.Add(prop.Key, prop.Value);
             }

@@ -63,9 +63,19 @@ public class ResourceLoader
             File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "AvatarCurveExcelConfigData.json"))
         )!.ToDictionary(data => data.level);
 
+    private Dictionary<uint, WorldLevelExcelConfig> LoadWorldLevelExcel() =>
+        JsonConvert.DeserializeObject<List<WorldLevelExcelConfig>>(
+            File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "WorldLevelExcelConfigData.json"))
+        )!.ToDictionary(data => data.level);
+
     private Dictionary<uint, WeaponCurveExcelConfig> LoadWeaponCurveExcelConfig() =>
         JsonConvert.DeserializeObject<List<WeaponCurveExcelConfig>>(
             File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "WeaponCurveExcelConfigData.json"))
+        )!.ToDictionary(data => data.level);
+
+    private Dictionary<uint, MonsterCurveExcelConfig> LoadMonsterCurveExcelConfig() =>
+        JsonConvert.DeserializeObject<List<MonsterCurveExcelConfig>>(
+            File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "MonsterCurveExcelConfigData.json"))
         )!.ToDictionary(data => data.level);
 
     private Dictionary<uint, Dictionary<uint, ProudSkillExcelConfig>> LoadProudSkillExcel() =>
@@ -343,5 +353,7 @@ public class ResourceLoader
         _resourceManager.GachaPoolExcel = this.LoadGachaPoolExcel();
         _resourceManager.AvatarCurveExcel = this.LoadAvatarCurveExcelConfig();
         _resourceManager.WeaponCurveExcel = this.LoadWeaponCurveExcelConfig();
+        _resourceManager.WorldLevelExcel = this.LoadWorldLevelExcel();
+        _resourceManager.MonsterCurveExcel = this.LoadMonsterCurveExcelConfig();
     }
 }

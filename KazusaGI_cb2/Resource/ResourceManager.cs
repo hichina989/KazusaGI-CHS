@@ -24,6 +24,8 @@ public class ResourceManager
     public Dictionary<uint, List<GachaPoolExcel>> GachaPoolExcel { get; set; }
     public Dictionary<uint, AvatarCurveExcelConfig> AvatarCurveExcel { get; set; }
     public Dictionary<uint, WeaponCurveExcelConfig> WeaponCurveExcel { get; set; }
+    public Dictionary<uint, WorldLevelExcelConfig> WorldLevelExcel { get; set; }
+    public Dictionary<uint, MonsterCurveExcelConfig> MonsterCurveExcel { get; set; }
 
     public ResourceManager(string baseResourcePath = "resources")
     {

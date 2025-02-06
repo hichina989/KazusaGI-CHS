@@ -83,3 +83,8 @@ class Handlers{
 - implement DungeonEntryInfoReq
 - implement basic ScriptLib
 - NOT load quest-related lua groups
+- add all weapons + weapon switching
+- add relics
+- fix tps sometimes breaking (idk why)
+
+- save data to db (wont happen anytime soon, unless someone wants to PR its implementation)

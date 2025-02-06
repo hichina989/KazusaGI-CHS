@@ -9,6 +9,7 @@ using static System.Collections.Specialized.BitVector32;
 using KazusaGI_cb2.Resource.Excel;
 using KazusaGI_cb2.Resource;
 using NLua;
+using System.Resources;
 
 namespace KazusaGI_cb2.GameServer;
 
@@ -20,6 +21,8 @@ public class MonsterEntity : Entity
     public uint level;
     public float Hp;
     public float MaxHp;
+    public float Atk;
+    public float Def;
 
     public MonsterEntity(Session session, uint MonsterId, MonsterLua? monsterInfo, Vector3? position)
         : base(session, position)
@@ -27,13 +30,67 @@ public class MonsterEntity : Entity
         this._EntityId = session.GetEntityId(ProtEntityType.ProtEntityMonster);
         _monsterInfo = monsterInfo;
         _monsterId = MonsterId;
-        this.level = monsterInfo != null ? monsterInfo.level : 1;
+        this.level = MainApp.resourceManager.WorldLevelExcel[session.player!.WorldLevel].monsterLevel;
+                    // monsterInfo != null ? monsterInfo.level : MainApp.resourceManager.WorldLevelExcel[session.player!.WorldLevel].monsterLevel;
         this.excelConfig = MainApp.resourceManager.MonsterExcel[MonsterId];
-        this.Hp = excelConfig.hpBase; // todo: curve
+        this.Hp = excelConfig.hpBase;
         this.MaxHp = this.Hp;
+        this.Atk = excelConfig.attackBase;
+        this.Def = excelConfig.defenseBase;
+        this.ReCalculateFightProps();
     }
 
-    public SceneEntityInfo ToSceneEntityInfo(Session session)
+    public void ReCalculateFightProps()
+    {
+        // needed for the avatar curve calculations
+        MonsterCurveExcelConfig curveConfig = MainApp.resourceManager.MonsterCurveExcel[this.level];
+
+        // init
+        float baseHp = this.excelConfig.hpBase;
+        float baseAtk = this.excelConfig.attackBase;
+        float baseDef = this.excelConfig.defenseBase;
+
+        // start with HP
+        // first we do character curves
+        GrowCurveType growCurveType = this.excelConfig.propGrowCurves.Find(c => c.type == FightPropType.FIGHT_PROP_BASE_HP)!.growCurve;
+        GrowCurveInfo growCurve_Avatar_hp = curveConfig.curveInfos.Find(c => c.type == growCurveType)!;
+        baseHp = CalculateByArith(baseHp, growCurve_Avatar_hp.value, growCurve_Avatar_hp.arith);
+
+        // then we do Atk
+        growCurveType = this.excelConfig.propGrowCurves.Find(c => c.type == FightPropType.FIGHT_PROP_BASE_ATTACK)!.growCurve;
+        GrowCurveInfo growCurve_Avatar_atk = curveConfig.curveInfos.Find(c => c.type == growCurveType)!;
+        baseAtk = CalculateByArith(baseAtk, growCurve_Avatar_atk.value, growCurve_Avatar_atk.arith);
+
+        // then we do Def
+        growCurveType = this.excelConfig.propGrowCurves.Find(c => c.type == FightPropType.FIGHT_PROP_BASE_DEFENSE)!.growCurve;
+        GrowCurveInfo growCurve_Avatar_def = curveConfig.curveInfos.Find(c => c.type == growCurveType)!;
+        baseDef = CalculateByArith(baseDef, growCurve_Avatar_def.value, growCurve_Avatar_def.arith);
+
+        // set the values
+        this.MaxHp = baseHp;
+        this.Atk = baseAtk;
+        this.Def = baseDef;
+        this.Hp = baseHp;
+    }
+
+    public float CalculateByArith(float baseValue, float growValue, ArithType arithType)
+    {
+        switch (arithType)
+        {
+            case ArithType.ARITH_MULTI:
+                return baseValue + baseValue * growValue;
+            case ArithType.ARITH_ADD:
+                return baseValue + growValue;
+            case ArithType.ARITH_SUB:
+                return baseValue - growValue;
+            case ArithType.ARITH_DIVIDE:
+                return baseValue - baseValue / growValue;
+            default:
+                return baseValue;
+        }
+    }
+
+    public SceneEntityInfo ToSceneEntityInfo()
     {
         SceneEntityInfo ret = new SceneEntityInfo()
         {
@@ -117,10 +174,7 @@ public class MonsterEntity : Entity
         {
             EntityId = this._EntityId
         };
-        foreach(var prop in this.GetFightProps())
-        {
-            entityFightPropUpdateNotify.FightPropMaps.Add(prop.Key, prop.Value);
-        }
+        entityFightPropUpdateNotify.FightPropMaps.Add((uint)FightPropType.FIGHT_PROP_CUR_HP, this.Hp);
         this.session!.SendPacket(entityFightPropUpdateNotify);
         this.session!.SendPacket(new EntityFightPropChangeReasonNotify()
         {
@@ -153,7 +207,7 @@ public class MonsterEntity : Entity
     }
 
     
-    public Dictionary<uint, float> GetFightProps()
+    private Dictionary<uint, float> GetFightProps()
     {
         Dictionary<uint, float> ret = new Dictionary<uint, float>();
         foreach (FightPropType propType in Enum.GetValues(typeof(FightPropType)))
@@ -163,12 +217,16 @@ public class MonsterEntity : Entity
                 case FightPropType.FIGHT_PROP_BASE_HP:
                     ret.Add((uint)propType, this.excelConfig.hpBase);
                     break;
-                case FightPropType.FIGHT_PROP_CUR_ATTACK: // todo: curve
-                case FightPropType.FIGHT_PROP_ATTACK: // todo: curve
+                case FightPropType.FIGHT_PROP_CUR_ATTACK:
+                case FightPropType.FIGHT_PROP_ATTACK:
+                    ret.Add((uint)propType, this.Atk);
+                    break;
                 case FightPropType.FIGHT_PROP_BASE_ATTACK:
                     ret.Add((uint)propType, this.excelConfig.attackBase);
                     break;
-                case FightPropType.FIGHT_PROP_DEFENSE: // todo: curve
+                case FightPropType.FIGHT_PROP_DEFENSE:
+                    ret.Add((uint)propType, this.Def);
+                    break;
                 case FightPropType.FIGHT_PROP_BASE_DEFENSE:
                     ret.Add((uint)propType, this.excelConfig.defenseBase);
                     break;

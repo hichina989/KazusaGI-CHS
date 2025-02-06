@@ -105,7 +105,7 @@ public class Scene
                 MonsterExcelConfig monster = resourceManager.MonsterExcel[MonsterId];
                 MonsterEntity monsterEntity = new MonsterEntity(session, MonsterId, monsterLua, monsterLua.pos);
                 session.entityMap.Add(monsterEntity._EntityId, monsterEntity);
-                currentSceneEntityAppearNotify.EntityLists.Add(monsterEntity.ToSceneEntityInfo(session));
+                currentSceneEntityAppearNotify.EntityLists.Add(monsterEntity.ToSceneEntityInfo());
                 alreadySpawnedMonsters.Add(monsterLua);
 
                 // If there are more than 5 entities, push current notify and start a new one
@@ -248,7 +248,7 @@ public class Scene
                 MonsterExcelConfig monster = resourceManager.MonsterExcel[MonsterId];
                 MonsterEntity monsterEntity = new MonsterEntity(session, MonsterId, monsterLua, monsterLua.pos);
                 session.entityMap.Add(monsterEntity._EntityId, monsterEntity);
-                currentSceneEntityAppearNotify.EntityLists.Add(monsterEntity.ToSceneEntityInfo(session));
+                currentSceneEntityAppearNotify.EntityLists.Add(monsterEntity.ToSceneEntityInfo());
                 alreadySpawnedMonsters.Add(monsterLua);
 
                 // If there are more than 5 entities, push current notify and start a new one

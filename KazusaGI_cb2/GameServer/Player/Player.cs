@@ -22,7 +22,7 @@ public class Player
     public List<PlayerTeam> teamList { get; set; }
     public uint TeamIndex { get; set; } = 0;
     public uint SceneId { get; set; } = 3;
-    public uint WorldLevel { get; set; } = 5; // i think thats the most fair until we implement reliquary
+    public uint WorldLevel { get; set; } = 2; // i think thats the most fair until we implement reliquary and more weapons
     public Scene Scene { get; set; }
     public Vector3 Pos { get; private set; }
     public Vector3 Rot { get; private set; } // wont actually be used except for scene tp
