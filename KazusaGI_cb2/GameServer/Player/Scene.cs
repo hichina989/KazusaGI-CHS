@@ -179,6 +179,15 @@ public class Scene
 
         if (sceneEntityDisappearNotify.EntityLists.Count > 0)
         {
+            foreach (uint entityId in sceneEntityDisappearNotify.EntityLists)
+            {
+                session.SendPacket(new LifeStateChangeNotify()
+                {
+                    EntityId = entityId,
+                    LifeState = 2,
+                });
+                session.entityMap.Remove(entityId);
+            }
             session.SendPacket(sceneEntityDisappearNotify);
         }
     }
@@ -302,6 +311,15 @@ public class Scene
         }
         if (sceneEntityDisappearNotify.EntityLists.Count > 0)
         {
+            foreach (uint entityId in sceneEntityDisappearNotify.EntityLists)
+            {
+                session.SendPacket(new LifeStateChangeNotify()
+                {
+                    EntityId = entityId,
+                    LifeState = 2,
+                });
+                session.entityMap.Remove(entityId);
+            }
             session.SendPacket(sceneEntityDisappearNotify);
         }
     }
