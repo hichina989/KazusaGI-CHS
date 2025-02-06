@@ -69,6 +69,7 @@ public class LoginStuff
         AvatarEntity currentAvatarEntity = avatarEntities.First(c => c.DbInfo == currentAvatar);
         SceneEntityInfo entityInfo = currentAvatarEntity.ToSceneEntityInfo(session);
         sceneEntityAppearNotify.EntityLists.Add(entityInfo);
+        sceneEntityAppearNotify.Param = entityInfo.EntityId;
         ScenePlayerLocationNotify scenePlayerLocationNotify = new ScenePlayerLocationNotify()
         {
             SceneId = session.player.SceneId

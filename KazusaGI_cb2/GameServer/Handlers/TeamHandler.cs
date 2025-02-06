@@ -51,9 +51,9 @@ public class TeamHandler
         SetUpAvatarTeamReq req = packet.GetDecodedBody<SetUpAvatarTeamReq>();
 
         AvatarTeamUpdateNotify avatarTeamUpdateNotify = new AvatarTeamUpdateNotify();
-        for (uint i = 0; i < session.player!.teamList.Count; i++)
+        for (uint i = 1; i <= session.player!.teamList.Count; i++)
         {
-            PlayerTeam playerTeam = session.player!.teamList[(int)i];
+            PlayerTeam playerTeam = session.player!.teamList[(int)i-1];
             AvatarTeam avatarTeam = new AvatarTeam()
             {
                 TeamName = $"KazusaGI team {i + 1}"
@@ -83,7 +83,7 @@ public class TeamHandler
         };
 
         // this is the team were working with
-        PlayerTeam targetTeam = session.player!.teamList[(int)req.TeamId];
+        PlayerTeam targetTeam = session.player!.teamList[(int)req.TeamId-1];
 
         List<AvatarEntity> avatarEntities = session.entityMap.Values
             .OfType<AvatarEntity>()
@@ -118,23 +118,22 @@ public class TeamHandler
 
         }
 
+        session.player!.teamList[(int)req.TeamId - 1].Leader = newLeaderAvatar; // set the new leader
+
         session.SendPacket(notify);
 
-        if (oldTeamLeader != newLeaderAvatar) 
+        session.SendPacket(new SceneEntityDisappearNotify()
         {
-            session.SendPacket(new SceneEntityDisappearNotify()
-            {
-                EntityLists = { oldLeaderEntity._EntityId },
-                DisappearType = VisionType.VisionReplace
-            });
+            EntityLists = { oldLeaderEntity._EntityId },
+            DisappearType = VisionType.VisionReplace
+        });
 
-            SceneEntityAppearNotify sceneEntityAppearNotify = new SceneEntityAppearNotify()
-            {
-                AppearType = VisionType.VisionReplace
-            };
-            sceneEntityAppearNotify.EntityLists.Add(newLeaderEntity.ToSceneEntityInfo(session));
-            session.SendPacket(sceneEntityAppearNotify);
-        }
+        SceneEntityAppearNotify sceneEntityAppearNotify = new SceneEntityAppearNotify()
+        {
+            AppearType = VisionType.VisionReplace
+        };
+        sceneEntityAppearNotify.EntityLists.Add(newLeaderEntity.ToSceneEntityInfo(session));
+        session.SendPacket(sceneEntityAppearNotify);
 
         session.SendPacket(rsp);
     }

@@ -20,7 +20,7 @@ public class Player
     public Dictionary<ulong, PlayerWeapon> weaponDict { get; set; }
     public Dictionary<ulong, PlayerItem> itemDict { get; set; }
     public List<PlayerTeam> teamList { get; set; }
-    public uint TeamIndex { get; set; } = 0;
+    public uint TeamIndex { get; set; } = 1;
     public uint SceneId { get; set; } = 3;
     public uint WorldLevel { get; set; } = 2; // i think thats the most fair until we implement reliquary and more weapons
     public Scene Scene { get; set; }
@@ -172,6 +172,7 @@ public class Player
 
     public void EnterScene(Session session, uint sceneId, EnterType enterType = EnterType.EnterSelf)
     {
+        uint oldSceneId = session.player!.SceneId;
         session.player!.Scene.isFinishInit = false;
         ResourceManager resourceManager = MainApp.resourceManager;
         Vector3 oldPos = session.player!.Pos;
@@ -200,8 +201,9 @@ public class Player
         PlayerEnterSceneNotify enterSceneNotify = new()
         {
             SceneId = sceneId,
+            PrevSceneId = oldSceneId,
             Pos = Session.Vector3ToVector(newPos),
-            SceneBeginTime = (ulong)DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+            SceneBeginTime = 0,
             Type = enterType,
             PrevPos = Session.Vector3ToVector(oldPos),
             EnterSceneToken = 69,
@@ -218,12 +220,12 @@ public class Player
             CurAvatarTeamId = this.TeamIndex,
             ChooseAvatarGuid = GetCurrentLineup().Leader!.Guid
         };
-        for (uint i = 0; i < this.teamList.Count; i++)
+        for (uint i = 1; i <= this.teamList.Count; i++)
         {
-            PlayerTeam playerTeam = this.teamList[(int)i];
+            PlayerTeam playerTeam = this.teamList[(int)i-1];
             AvatarTeam avatarTeam = new AvatarTeam()
             {
-                TeamName = $"KazusaGI team {i + 1}"
+                TeamName = $"KazusaGI team {i}"
             };
             foreach (PlayerAvatar playerAvatar in playerTeam.Avatars)
             {
@@ -242,7 +244,7 @@ public class Player
 
     public PlayerTeam GetCurrentLineup()
     {
-        return this.teamList[(int)this.TeamIndex];
+        return this.teamList[(int)this.TeamIndex-1];
     }
 
     public enum Gender

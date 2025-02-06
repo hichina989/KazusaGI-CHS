@@ -33,7 +33,7 @@ public class AvatarEntity : Entity
                 Pos = Session.Vector3ToVector(session.player!.Pos),
                 Rot = Session.Vector3ToVector(session.player.Rot),
                 Speed = new Protocol.Vector(),
-                State = MotionState.MotionFallOnGround
+                State = MotionState.MotionNone
             },
             LifeState = DbInfo.Hp > 0 ? (uint)1 : 0,
             AiInfo = new SceneEntityAiInfo()
