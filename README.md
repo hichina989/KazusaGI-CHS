@@ -85,6 +85,7 @@ class Handlers{
 - NOT load quest-related lua groups
 - add all weapons + weapon switching
 - add relics
-- fix tps sometimes breaking (idk why)
+- fix weapon being invisible when switching teams for a short time \
+(i have no idea what causes it. not gamebreaking, but absolutely annoying)
 
 - save data to db (wont happen anytime soon, unless someone wants to PR its implementation)
