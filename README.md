@@ -78,3 +78,10 @@ class Handlers{
 };
 ```
 - Press `Save Script`, a sound indicating success should be heard.
+
+### Personal TODO List
+- implement DungeonEntryInfoReq
+- implement Gacha
+- implement basic ScriptLib
+- load scenes from group suits
+- NOT load quest-related lua groups
