@@ -11,31 +11,35 @@ namespace KazusaGI_cb2.GameServer.Handlers;
 
 public class Scene
 {
+    private static SemaphoreSlim _updateOnMoveSemaphore = new SemaphoreSlim(1, 1);
+
     [Packet.PacketCmdId(PacketId.SceneEntitiesMovesReq)]
     public static void HandleSceneEntitiesMovesReq(Session session, Packet packet)
     {
         SceneEntitiesMovesReq req = packet.GetDecodedBody<SceneEntitiesMovesReq>();
         SceneEntitiesMovesRsp rsp = new SceneEntitiesMovesRsp();
+        bool needsUpdate = false;
         foreach (EntityMoveInfo move in req.EntityMoveInfoLists)
         {
-            if (Session.VectorProto2Vector3(move.MotionInfo.Pos) == Vector3.Zero)
+            if (Session.VectorProto2Vector3(move.MotionInfo.Pos) == Vector3.Zero || !session.entityMap.ContainsKey(move.EntityId))
             {
+                session.c.LogWarning($"[FUCKED MOVEMENT] Entity {move.EntityId} moved to {move.MotionInfo.Pos.X}, {move.MotionInfo.Pos.Y}, {move.MotionInfo.Pos.Z}");
                 // may happen sometimes, may not. better be safe.
                 continue;
             }
-            if (session.entityMap.ContainsKey(move.EntityId))
+            session.entityMap[move.EntityId].Position = Session.VectorProto2Vector3(move.MotionInfo.Pos);
+            if (session.entityMap[move.EntityId] is AvatarEntity)
             {
-                session.entityMap[move.EntityId].Position = Session.VectorProto2Vector3(move.MotionInfo.Pos);
-                if (session.entityMap[move.EntityId] is AvatarEntity)
-                {
-                    session.player!.TeleportToPos(session, Session.VectorProto2Vector3(move.MotionInfo.Pos), true);
-                    session.player!.SetRot(Session.VectorProto2Vector3(move.MotionInfo.Rot));
-                    session.player.Scene.UpdateOnMove();
-                    // session.c.LogWarning($"Player {session.player.Uid} moved to {move.MotionInfo.Pos.X}, {move.MotionInfo.Pos.Y}, {move.MotionInfo.Pos.Z}");
-                }
+                needsUpdate = true;
+                session.player!.TeleportToPos(session, Session.VectorProto2Vector3(move.MotionInfo.Pos), true);
+                session.player!.SetRot(Session.VectorProto2Vector3(move.MotionInfo.Rot));
+                // session.c.LogWarning($"Player {session.player.Uid} moved to {move.MotionInfo.Pos.X}, {move.MotionInfo.Pos.Y}, {move.MotionInfo.Pos.Z}");
             }
         }
         session.SendPacket(rsp);
+
+        if (needsUpdate)
+            session.player!.Scene.UpdateOnMove();
     }
 
     [Packet.PacketCmdId(PacketId.SceneGetAreaExplorePercentReq)]

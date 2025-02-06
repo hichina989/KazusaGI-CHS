@@ -66,8 +66,7 @@ public class Evt
     [Packet.PacketCmdId(PacketId.EvtSetAttackTargetNotify)]
     public static void HandleEvtSetAttackTargetNotify(Session session, Packet packet)
     {
-        EvtSetAttackTargetNotify req = packet.GetDecodedBody<EvtSetAttackTargetNotify>();
-        session.SendPacket(req);
+        // do nothing
     }
 
     [Packet.PacketCmdId(PacketId.ClientAbilitiesInitFinishCombineNotify)]
