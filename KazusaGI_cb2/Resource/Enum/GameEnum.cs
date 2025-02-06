@@ -250,3 +250,12 @@ public enum ItemType
     ITEM_WEAPON = 4,
     ITEM_DISPLAY = 5
 }
+
+public enum ArithType
+{
+    ARITH_NONE = 0,
+    ARITH_ADD = 1,
+    ARITH_MULTI = 2,
+    ARITH_SUB = 3,
+    ARITH_DIVIDE = 4
+}

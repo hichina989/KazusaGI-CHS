@@ -22,7 +22,7 @@ public class Player
     public List<PlayerTeam> teamList { get; set; }
     public uint TeamIndex { get; set; } = 0;
     public uint SceneId { get; set; } = 3;
-    public uint WorldLevel { get; set; } = 1;
+    public uint WorldLevel { get; set; } = 5; // i think thats the most fair until we implement reliquary
     public Scene Scene { get; set; }
     public Vector3 Pos { get; private set; }
     public Vector3 Rot { get; private set; } // wont actually be used except for scene tp
@@ -31,7 +31,7 @@ public class Player
     public Player(Session session, uint uid)
     {
         Name = "KazusaPS";
-        Level = 1;
+        Level = 60;
         Uid = uid;
         this.session = session;
 
@@ -147,7 +147,7 @@ public class Player
             {
                 AvatarGuid = playerAvatar.Guid,
                 EntityId = avatarEntities.First(c => c.DbInfo == playerAvatar)._EntityId,
-                AvatarInfo = playerAvatar.ToAvatarInfo(session),
+                AvatarInfo = playerAvatar.ToAvatarInfo(),
                 PlayerUid = this.Uid,
                 SceneId = session.player!.SceneId,
                 // SceneAvatarInfo = playerAvatar.ToSceneAvatarInfo(session),
@@ -235,7 +235,7 @@ public class Player
         foreach (KeyValuePair<ulong, PlayerAvatar> pair in this.avatarDict)
         {
             PlayerAvatar avatar = pair.Value;
-            dataNotify.AvatarLists.Add(avatar.ToAvatarInfo(session));
+            dataNotify.AvatarLists.Add(avatar.ToAvatarInfo());
         }
         session.SendPacket(dataNotify);
     }

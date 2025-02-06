@@ -82,5 +82,4 @@ class Handlers{
 ### Personal TODO List
 - implement DungeonEntryInfoReq
 - implement basic ScriptLib
-- calculate stats from curves
 - NOT load quest-related lua groups

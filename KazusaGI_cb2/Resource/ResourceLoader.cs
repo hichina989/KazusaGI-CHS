@@ -58,6 +58,16 @@ public class ResourceLoader
             File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "GadgetExcelConfigData.json"))
         )!.ToDictionary(data => data.id);
 
+    private Dictionary<uint, AvatarCurveExcelConfig> LoadAvatarCurveExcelConfig() =>
+        JsonConvert.DeserializeObject<List<AvatarCurveExcelConfig>>(
+            File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "AvatarCurveExcelConfigData.json"))
+        )!.ToDictionary(data => data.level);
+
+    private Dictionary<uint, WeaponCurveExcelConfig> LoadWeaponCurveExcelConfig() =>
+        JsonConvert.DeserializeObject<List<WeaponCurveExcelConfig>>(
+            File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "WeaponCurveExcelConfigData.json"))
+        )!.ToDictionary(data => data.level);
+
     private Dictionary<uint, Dictionary<uint, ProudSkillExcelConfig>> LoadProudSkillExcel() =>
         JsonConvert.DeserializeObject<List<ProudSkillExcelConfig>>(
             File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "ProudSkillExcelConfigData.json"))
@@ -331,5 +341,7 @@ public class ResourceLoader
         _resourceManager.MaterialExcel = this.LoadMaterialExcel();
         _resourceManager.GachaExcel = this.LoadGachaExcel();
         _resourceManager.GachaPoolExcel = this.LoadGachaPoolExcel();
+        _resourceManager.AvatarCurveExcel = this.LoadAvatarCurveExcelConfig();
+        _resourceManager.WeaponCurveExcel = this.LoadWeaponCurveExcelConfig();
     }
 }

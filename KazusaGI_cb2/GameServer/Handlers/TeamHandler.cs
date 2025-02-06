@@ -111,7 +111,7 @@ public class TeamHandler
             {
                 AvatarGuid = targetAvatar.Guid,
                 EntityId = avatarEntities.First(c => c.DbInfo == targetAvatar)._EntityId,
-                AvatarInfo = targetAvatar.ToAvatarInfo(session),
+                AvatarInfo = targetAvatar.ToAvatarInfo(),
                 PlayerUid = session.player.Uid,
                 SceneId = session.player!.SceneId,
             });

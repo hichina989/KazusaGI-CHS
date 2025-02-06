@@ -11,6 +11,7 @@ namespace KazusaGI_cb2.GameServer.PlayerInfos;
 public class PlayerAvatar
 {
     private static ResourceManager resourceManager = MainApp.resourceManager;
+    private Session Session { get; set; }
     private AvatarExcelConfig avatarExcel { get; set; }
     private AvatarSkillDepotExcelConfig avatarSkillDepotExcel { get; set; }
     public ulong Guid { get; set; } // critical
@@ -21,6 +22,9 @@ public class PlayerAvatar
     public float MaxHp { get; set; }
     public float Def { get; set; }
     public float Atk { get; set; }
+    public float CritRate { get; set; }
+    public float CritDmg { get; set; }
+    public float EM { get; set; }
     public uint PromoteLevel { get; set; }
     public uint BreakLevel { get; set; }
     public float CurElemEnergy { get; set; }
@@ -33,6 +37,7 @@ public class PlayerAvatar
 
     public PlayerAvatar(Session session, uint AvatarId)
     {
+        this.Session = session;
         this.avatarExcel = resourceManager.AvatarExcel[AvatarId];
         this.SkillDepotId = this.isTraveler() ? avatarExcel.candSkillDepotIds[3] : avatarExcel.skillDepotId;
         this.avatarSkillDepotExcel = resourceManager.AvatarSkillDepotExcel[this.SkillDepotId];
@@ -49,6 +54,9 @@ public class PlayerAvatar
         this.MaxHp = avatarExcel.hpBase;
         this.Def = avatarExcel.defenseBase;
         this.Atk = avatarExcel.attackBase;
+        this.CritRate = avatarExcel.critical;
+        this.CritDmg = avatarExcel.criticalHurt;
+        this.EM = 100;
         this.PromoteLevel = 6;
         this.CurElemEnergy = 0;
         uint initialWeapon = avatarExcel.initialWeapon;
@@ -82,19 +90,20 @@ public class PlayerAvatar
                 this.ProudSkills.Add(proudSkillExcel.proudSkillId);
             }
         }
+        ReCalculateFightProps();
     }
 
-    public SceneAvatarInfo ToSceneAvatarInfo(Session session)
+    public SceneAvatarInfo ToSceneAvatarInfo()
     {
         SceneAvatarInfo sceneAvatarInfo = new SceneAvatarInfo()
         {
             PeerId = 1,
             Guid = this.Guid,
             AvatarId = this.AvatarId,
-            Uid = session.player!.Uid,
+            Uid = Session.player!.Uid,
             SkillDepotId = this.SkillDepotId,
             CoreProudSkillLevel = 1,
-            Weapon = session.player!.weaponDict[this.EquipGuid].ToSceneWeaponInfo(session),
+            Weapon = Session.player!.weaponDict[this.EquipGuid].ToSceneWeaponInfo(Session),
         };
         foreach (uint unlockedTalentId in this.UnlockedTalents)
         {
@@ -111,7 +120,7 @@ public class PlayerAvatar
 
             sceneAvatarInfo.SkillLevelMaps.Add(skillId, level);
         }
-        sceneAvatarInfo.EquipIdLists.Add(session.player!.weaponDict[this.EquipGuid].WeaponId);
+        sceneAvatarInfo.EquipIdLists.Add(Session.player!.weaponDict[this.EquipGuid].WeaponId);
         return sceneAvatarInfo;
     }
 
@@ -120,7 +129,7 @@ public class PlayerAvatar
         return this.avatarExcel.candSkillDepotIds.Count > 0;
     }
 
-    public AvatarInfo ToAvatarInfo(Session session)
+    public AvatarInfo ToAvatarInfo()
     {
         AvatarInfo avatarInfo = new AvatarInfo()
         {
@@ -155,10 +164,183 @@ public class PlayerAvatar
         AddPropMap(PropType.PROP_EXP, this.Exp, avatarInfo.PropMaps);
         AddPropMap(PropType.PROP_BREAK_LEVEL, this.BreakLevel, avatarInfo.PropMaps);
 
+        ReCalculateFightProps();
+
         AddAllFightProps(avatarInfo.FightPropMaps);
 
         avatarInfo.EquipGuidLists.Add(this.EquipGuid);
         return avatarInfo;
+    }
+
+    // todo: reliquary
+    public void ReCalculateFightProps()
+    {
+        // needed for the avatar curve calculations
+        PlayerWeapon weapon = this.Session.player!.weaponDict[this.EquipGuid];
+        WeaponExcelConfig weaponExcel = MainApp.resourceManager.WeaponExcel[weapon.WeaponId];
+        AvatarCurveExcelConfig curveConfig = resourceManager.AvatarCurveExcel[this.Level];
+        WeaponCurveExcelConfig weaponCurveConfig = resourceManager.WeaponCurveExcel[weapon.Level];
+
+        // init
+        float baseCritRate = this.avatarExcel.critical;
+        float baseCritDmg = this.avatarExcel.criticalHurt;
+        float baseHp = this.avatarExcel.hpBase;
+        float baseAtk = this.avatarExcel.attackBase;
+        float baseDef = this.avatarExcel.defenseBase;
+        float baseElemMastery = this.EM;
+
+        // start with HP
+        // first we do character curves
+        GrowCurveType growCurveType = this.avatarExcel.propGrowCurves.Find(c => c.type == FightPropType.FIGHT_PROP_BASE_HP)!.growCurve;
+        GrowCurveInfo growCurve_Avatar_hp = curveConfig.curveInfos.Find(c => c.type == growCurveType)!;
+        baseHp = CalculateByArith(baseHp, growCurve_Avatar_hp.value, growCurve_Avatar_hp.arith);
+
+        // then we do weapon curves
+        WeaponProperty? weaponProperty = weaponExcel.weaponProp.FirstOrDefault(c => c.propType == FightPropType.FIGHT_PROP_HP_PERCENT);
+        if (weaponProperty != null)
+        {
+            growCurveType = weaponProperty.type;
+            GrowCurveInfo growCurve_Weapon_hp = weaponCurveConfig.curveInfos.Find(c => c.type == growCurveType)!;
+            if (growCurve_Weapon_hp.value != 0)
+            {
+                // since this is a percentage, we need to multiply it by 100 to get the actual value (delta)
+                baseHp = CalculateByArith(baseHp, growCurve_Weapon_hp.value * 100, growCurve_Weapon_hp.arith);
+            }
+        }
+
+        // idk if its even nessessary to reset the weaponProperty, but just in case
+        weaponProperty = null; // reset
+
+        // then we do Atk
+        growCurveType = this.avatarExcel.propGrowCurves.Find(c => c.type == FightPropType.FIGHT_PROP_BASE_ATTACK)!.growCurve;
+        GrowCurveInfo growCurve_Avatar_atk = curveConfig.curveInfos.Find(c => c.type == growCurveType)!;
+        baseAtk = CalculateByArith(baseAtk, growCurve_Avatar_atk.value, growCurve_Avatar_atk.arith);
+
+        // then we do weapon curves
+        // start with FIGHT_PROP_BASE_ATTACK
+        weaponProperty = weaponExcel.weaponProp.FirstOrDefault(c => c.propType == FightPropType.FIGHT_PROP_BASE_ATTACK);
+        if (weaponProperty != null)
+        {
+            growCurveType = weaponProperty.type;
+            GrowCurveInfo growCurve_Weapon_atk = weaponCurveConfig.curveInfos.Find(c => c.type == growCurveType)!;
+            if (growCurve_Weapon_atk.value != 0f)
+            {
+                baseAtk += CalculateByArith(weaponProperty.initValue, growCurve_Weapon_atk.value, growCurve_Weapon_atk.arith);
+            }
+        }
+
+        weaponProperty = null; // reset
+
+        // and then FIGHT_PROP_ATTACK_PERCENT
+        weaponProperty = weaponExcel.weaponProp.FirstOrDefault(c => c.propType == FightPropType.FIGHT_PROP_ATTACK_PERCENT);
+        if (weaponProperty != null)
+        {
+            growCurveType = weaponProperty.type;
+            GrowCurveInfo growCurve_Weapon_atk = weaponCurveConfig.curveInfos.Find(c => c.type == growCurveType)!;
+            if (growCurve_Weapon_atk.value != 0f)
+            {
+                // since this is a percentage, we need to multiply it by 100 to get the actual value (delta)
+                baseAtk += CalculateByArith(weaponProperty.initValue, growCurve_Weapon_atk.value * 100, growCurve_Weapon_atk.arith);
+            }
+        }
+
+        weaponProperty = null; // reset
+
+        // then we do Def
+        growCurveType = this.avatarExcel.propGrowCurves.Find(c => c.type == FightPropType.FIGHT_PROP_BASE_DEFENSE)!.growCurve;
+        GrowCurveInfo growCurve_Avatar_def = curveConfig.curveInfos.Find(c => c.type == growCurveType)!;
+        baseDef = CalculateByArith(baseDef, growCurve_Avatar_def.value, growCurve_Avatar_def.arith);
+
+        // then we do weapon curves
+        // start with FIGHT_PROP_BASE_DEFENSE
+        weaponProperty = weaponExcel.weaponProp.FirstOrDefault(c => c.propType == FightPropType.FIGHT_PROP_BASE_DEFENSE);
+        if (weaponProperty != null)
+        {
+            growCurveType = weaponProperty.type;
+            GrowCurveInfo growCurve_Weapon_def = weaponCurveConfig.curveInfos.Find(c => c.type == growCurveType)!;
+            if (growCurve_Weapon_def.value != 0f)
+            {
+                baseDef += CalculateByArith(weaponProperty.initValue, growCurve_Weapon_def.value, growCurve_Weapon_def.arith);
+            }
+        }
+
+        // and then FIGHT_PROP_DEFENSE_PERCENT
+        weaponProperty = weaponExcel.weaponProp.FirstOrDefault(c => c.propType == FightPropType.FIGHT_PROP_DEFENSE_PERCENT);
+        if (weaponProperty != null)
+        {
+            growCurveType = weaponProperty.type;
+            GrowCurveInfo growCurve_Weapon_def = weaponCurveConfig.curveInfos.Find(c => c.type == growCurveType)!;
+            if (growCurve_Weapon_def.value != 0f)
+            {
+                // since this is a percentage, we need to multiply it by 100 to get the actual value (delta)
+                baseDef += CalculateByArith(weaponProperty.initValue, growCurve_Weapon_def.value * 100, growCurve_Weapon_def.arith);
+            }
+        }
+
+        // then we do CritRate
+        // weapon
+        weaponProperty = weaponExcel.weaponProp.FirstOrDefault(c => c.propType == FightPropType.FIGHT_PROP_CRITICAL);
+        if (weaponProperty != null)
+        {
+            growCurveType = weaponProperty.type;
+            GrowCurveInfo growCurve_Weapon_crit = weaponCurveConfig.curveInfos.Find(c => c.type == growCurveType)!;
+            if (growCurve_Weapon_crit.value != 0f)
+            {
+                baseCritRate += CalculateByArith(weaponProperty.initValue, growCurve_Weapon_crit.value, growCurve_Weapon_crit.arith);
+            }
+        }
+
+        // then we do CritDmg
+        // weapon
+        weaponProperty = weaponExcel.weaponProp.FirstOrDefault(c => c.propType == FightPropType.FIGHT_PROP_CRITICAL_HURT);
+        if (weaponProperty != null)
+        {
+            growCurveType = weaponProperty.type;
+            GrowCurveInfo growCurve_Weapon_critDmg = weaponCurveConfig.curveInfos.Find(c => c.type == growCurveType)!;
+            if (growCurve_Weapon_critDmg.value != 0f)
+            {
+                baseCritDmg += CalculateByArith(weaponProperty.initValue, growCurve_Weapon_critDmg.value, growCurve_Weapon_critDmg.arith);
+            }
+        }
+
+        // then we do EM
+        // weapon
+        weaponProperty = weaponExcel.weaponProp.FirstOrDefault(c => c.propType == FightPropType.FIGHT_PROP_ELEMENT_MASTERY);
+        if (weaponProperty != null)
+        {
+            growCurveType = weaponProperty.type;
+            GrowCurveInfo growCurve_Weapon_EM = weaponCurveConfig.curveInfos.Find(c => c.type == growCurveType)!;
+            if (growCurve_Weapon_EM.value != 0f)
+            {
+                baseElemMastery += CalculateByArith(weaponProperty.initValue, growCurve_Weapon_EM.value, growCurve_Weapon_EM.arith);
+            }
+        }
+
+        // set the values
+        this.MaxHp = baseHp;
+        this.Atk = baseAtk;
+        this.Def = baseDef;
+        this.CritRate = baseCritRate;
+        this.CritDmg = baseCritDmg;
+        this.EM = baseElemMastery;
+        this.Hp = baseHp;
+    }
+
+    public float CalculateByArith(float baseValue, float growValue, ArithType arithType)
+    {
+        switch (arithType)
+        {
+            case ArithType.ARITH_MULTI:
+                return baseValue + baseValue * growValue;
+            case ArithType.ARITH_ADD:
+                return baseValue + growValue;
+            case ArithType.ARITH_SUB:
+                return baseValue - growValue;
+            case ArithType.ARITH_DIVIDE:
+                return baseValue - baseValue / growValue;
+            default:
+                return baseValue;
+        }
     }
 
     public void AddAllFightProps(Dictionary<uint, float> keyValuePairs)
@@ -169,8 +351,8 @@ public class PlayerAvatar
         AddFightPropMap(FightProp.FIGHT_PROP_CUR_SPEED, 0.0f, keyValuePairs);
         AddFightPropMap(FightProp.FIGHT_PROP_BASE_DEFENSE, avatarExcel.defenseBase, keyValuePairs);
         AddFightPropMap(FightProp.FIGHT_PROP_BASE_ATTACK, avatarExcel.attackBase, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_CRITICAL, avatarExcel.critical, keyValuePairs);
-        AddFightPropMap(FightProp.FIGHT_PROP_CRITICAL_HURT, avatarExcel.criticalHurt, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_CRITICAL, this.CritRate, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_CRITICAL_HURT, this.CritDmg, keyValuePairs);
         AddFightPropMap(FightProp.FIGHT_PROP_CHARGE_EFFICIENCY, 2.0f, keyValuePairs); // its a ps, let people have fun
         AddFightPropMap(FightProp.FIGHT_PROP_MAX_ROCK_ENERGY, 100.0f, keyValuePairs);
         AddFightPropMap(FightProp.FIGHT_PROP_MAX_ICE_ENERGY, 100.0f, keyValuePairs);
@@ -190,6 +372,7 @@ public class PlayerAvatar
         AddFightPropMap(FightProp.FIGHT_PROP_BASE_HP, avatarExcel.hpBase, keyValuePairs);
         AddFightPropMap(FightProp.FIGHT_PROP_CUR_DEFENSE, this.Def, keyValuePairs);
         AddFightPropMap(FightProp.FIGHT_PROP_CUR_ATTACK, this.Atk, keyValuePairs);
+        AddFightPropMap(FightProp.FIGHT_PROP_ELEMENT_MASTERY, this.EM, keyValuePairs);
         AddFightPropMap(FightProp.FIGHT_PROP_SKILL_CD_MINUS_RATIO, 2.0f, keyValuePairs); // its a ps, let people have fun
     }
 

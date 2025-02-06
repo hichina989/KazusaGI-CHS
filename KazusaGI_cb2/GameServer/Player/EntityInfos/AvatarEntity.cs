@@ -22,12 +22,12 @@ public class AvatarEntity : Entity
 
     public SceneEntityInfo ToSceneEntityInfo(Session session)
     {
-        AvatarInfo asAvatarInfo = this.DbInfo.ToAvatarInfo(session);
+        AvatarInfo asAvatarInfo = this.DbInfo.ToAvatarInfo();
         SceneEntityInfo ret = new SceneEntityInfo()
         {
             EntityType = ProtEntityType.ProtEntityAvatar,
             EntityId = this._EntityId,
-            Avatar = DbInfo.ToSceneAvatarInfo(session),
+            Avatar = DbInfo.ToSceneAvatarInfo(),
             MotionInfo = new MotionInfo()
             {
                 Pos = Session.Vector3ToVector(session.player!.Pos),

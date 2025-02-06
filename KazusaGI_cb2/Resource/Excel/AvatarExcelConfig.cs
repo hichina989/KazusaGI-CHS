@@ -27,7 +27,7 @@ public class AvatarExcelConfig
     public float critical;
     public float criticalHurt;
 
-    // propGrowCurves later
+    public List<FightPropGrowConfig> propGrowCurves;
 
     public uint id;
     public uint nameTextMapHash;

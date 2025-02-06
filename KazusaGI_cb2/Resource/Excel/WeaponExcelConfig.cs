@@ -23,6 +23,8 @@ public class WeaponExcelConfig
     public byte gachaCardNameHashPre; // 0x98
     public uint gachaCardNameHashSuffix; // 0x9C
 
+    public List<WeaponProperty> weaponProp;
+
     public uint id; // 0x10
     public uint nameTextMapHash; // 0x14
     public uint descTextMapHash; // 0x18
