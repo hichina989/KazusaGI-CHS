@@ -11,8 +11,10 @@ public class GadgetLua
 {
     public uint config_id;
     public uint gadget_id;
-    public uint level;
-    public List<uint> affix = new List<uint>();
     public Vector3 pos;
     public Vector3 rot;
+    // state
+    public uint route_id;
+    // persistent
+    public uint level;
 }

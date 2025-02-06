@@ -14,6 +14,9 @@ public class SceneLua
     public List<BlockRect> block_rects;
     public List<string> dummy_points;
     public List<string> routes_config;
+
+    // custom, inlined
+    public Dictionary<int, SceneBlockLua> scene_blocks;
 }
 
 public class SceneConfig

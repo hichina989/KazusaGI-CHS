@@ -58,15 +58,20 @@ public class ResourceLoader
             File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "WeaponExcelConfigData.json"))
         )!.ToDictionary(data => data.id);
 
-    private Dictionary<uint, ScenePoint> LoadScenePoints()
+    // load scene infos asyncronously to speed up loading
+    private async Task<Dictionary<uint, ScenePoint>> LoadScenePointsAsync()
     {
         var scenePoints = new Dictionary<uint, ScenePoint>();
+        var sceneTasks = new List<Task>();
+
         string scenePath = Path.Combine(_baseResourcePath, LuaSubPath, "Scene");
+
         foreach (var sceneDir in Directory.GetDirectories(scenePath))
         {
             string sceneIdStr = Path.GetFileName(sceneDir);
             if (!uint.TryParse(sceneIdStr, out uint sceneId))
                 continue;
+
             string jsonPath = Path.Combine(sceneDir, $"scene{sceneId}_point.json");
             if (File.Exists(jsonPath))
             {
@@ -74,12 +79,15 @@ public class ResourceLoader
                 if (scenePoint != null)
                     scenePoints[sceneId] = scenePoint;
             }
-            LoadSceneLua(sceneDir, sceneId);
+
+            sceneTasks.Add(Task.Run(() => LoadSceneLua(sceneDir, sceneId)));
         }
+
+        await Task.WhenAll(sceneTasks);
+
         return scenePoints;
     }
 
-    // TODO: load blocks later
     private void LoadSceneLua(string sceneDir, uint sceneId)
     {
         string luaPath = Path.Combine(sceneDir, $"scene{sceneId}.lua");
@@ -124,6 +132,8 @@ public class ResourceLoader
                         max = Table2Vector3(c["max"])
                     });
                 }
+
+                LoadSceneBlock(sceneDir, sceneId, sceneLuaConfig);
             }
 
             if (dummy_points != null)
@@ -142,6 +152,124 @@ public class ResourceLoader
 
             _resourceManager.SceneLuas[sceneId] = sceneLuaConfig;
         }
+    }
+
+    private void LoadSceneBlock(string sceneDir, uint sceneId, SceneLua sceneLuaConfig)
+    {
+        Logger logger = new("SceneGroup Loader");
+        for (int i = 0; i < sceneLuaConfig.blocks.Count; i++)
+        {
+            SceneBlockLua sceneBlockLua = new SceneBlockLua();
+            Vector3 minPos = sceneLuaConfig.block_rects[i].min;
+            Vector3 maxPos = sceneLuaConfig.block_rects[i].max;
+            int blockId = sceneLuaConfig.blocks[i];
+            string blockLuaPath = Path.Combine(sceneDir, $"scene{sceneId}_block{blockId}.lua");
+            using (Lua blockLua = new())
+            {
+                blockLua.DoString(File.ReadAllText(blockLuaPath));
+                sceneBlockLua.groups = new List<SceneGroupBasicLua>();
+                sceneBlockLua.scene_groups = new Dictionary<uint, SceneGroupLua>();
+                LuaTable groups = (LuaTable)blockLua["groups"];
+                foreach (LuaTable group in groups.Values.Cast<LuaTable>())
+                {
+                    SceneGroupBasicLua sceneGroupBasicLua = new SceneGroupBasicLua()
+                    {
+                        id = Convert.ToUInt32(group["id"]),
+                        refresh_id = Convert.ToUInt32(group["refresh_id"]),
+                        area = Convert.ToUInt32(group["area"]),
+                        pos = Table2Vector3(group["pos"]),
+                        dynamic_load = Convert.ToBoolean(group["dynamic_load"]),
+                        unload_when_disconnect = Convert.ToBoolean(group["unload_when_disconnect"])
+                    };
+                    sceneBlockLua.groups.Add(sceneGroupBasicLua);
+                    string groupLuaPath = Path.Combine(sceneDir, $"scene{sceneId}_group{sceneGroupBasicLua.id}.lua");
+                    string mainLuaString = 
+                        File.ReadAllText(Path.Combine(_baseResourcePath, LuaSubPath, "Config", "Excel", "CommonScriptConfig.lua")) + "\n"
+                        + File.ReadAllText(Path.Combine(_baseResourcePath, LuaSubPath, "Config", "Json", "ConfigEntityType.lua")) + "\n"
+                        + File.ReadAllText(Path.Combine(_baseResourcePath, LuaSubPath, "Config", "Json", "ConfigEntity.lua")) + "\n"
+                        + File.ReadAllText(groupLuaPath);
+
+                    sceneBlockLua.scene_groups.Add(sceneGroupBasicLua.id, LoadSceneGroup(mainLuaString));
+                }
+            };
+        }
+    }
+
+    public SceneGroupLua LoadSceneGroup(string LuaFileContents)
+    {
+        SceneGroupLua sceneGroupLua_ = new SceneGroupLua();
+        using (Lua sceneGroupLua = new Lua())
+        {
+            sceneGroupLua.DoString(LuaFileContents);
+            LuaTable monstersList = (LuaTable)sceneGroupLua["monsters"];
+            LuaTable gadgetsList = (LuaTable)sceneGroupLua["gadgets"];
+            LuaTable initConfig = (LuaTable)sceneGroupLua["init_config"];
+            LuaTable suites = (LuaTable)sceneGroupLua["suites"];
+            sceneGroupLua_.monsters = new List<MonsterLua>();
+            sceneGroupLua_.gadgets = new List<GadgetLua>();
+            sceneGroupLua_.init_config = new SceneGroupLuaInitConfig();
+            sceneGroupLua_.suites = new List<SceneGroupLuaSuite>();
+
+            foreach (LuaTable monster in monstersList.Values.Cast<LuaTable>())
+            {
+                MonsterLua monsterLua = new MonsterLua()
+                {
+                    monster_id = Convert.ToUInt32(monster["monster_id"]),
+                    config_id = Convert.ToUInt32(monster["config_id"]),
+                    level = Convert.ToUInt32(monster["level"]),
+                    pose_id = Convert.ToUInt32(monster["pose_id"]),
+                    isElite = Convert.ToBoolean(monster["isElite"]),
+                    pos = Table2Vector3(monster["pos"]),
+                    rot = Table2Vector3(monster["rot"]),
+                    affix = monster["affix"] != null
+                        ? new List<uint>(((LuaTable)monster["affix"]).Values.Cast<object>().Select(v => Convert.ToUInt32(v)))
+                        : new List<uint>(),
+                };
+                sceneGroupLua_.monsters.Add(monsterLua);
+            }
+
+            foreach (LuaTable gadget in gadgetsList.Values.Cast<LuaTable>())
+            {
+                sceneGroupLua_.gadgets.Add(new GadgetLua()
+                {
+                    config_id = Convert.ToUInt32(gadget["config_id"]),
+                    gadget_id = Convert.ToUInt32(gadget["gadget_id"]),
+                    pos = Table2Vector3(gadget["pos"]),
+                    rot = Table2Vector3(gadget["rot"]),
+                    route_id = Convert.ToUInt32(gadget["route_id"]),
+                    level = Convert.ToUInt32(gadget["level"])
+                });
+            }
+
+            sceneGroupLua_.init_config.suite = Convert.ToUInt32(initConfig["suite"]);
+
+            foreach (LuaTable suite in suites.Values.Cast<LuaTable>())
+            {
+                SceneGroupLuaSuite sceneGroupLuaSuite = new SceneGroupLuaSuite()
+                {
+                    monsters = suite["monsters"] != null
+                        ? new List<uint>(((LuaTable)suite["monsters"]).Values.Cast<object>().Select(v => Convert.ToUInt32(v)))
+                        : new List<uint>(),
+
+                    gadgets = suite["gadgets"] != null
+                        ? new List<uint>(((LuaTable)suite["gadgets"]).Values.Cast<object>().Select(v => Convert.ToUInt32(v)))
+                        : new List<uint>(),
+
+                    regions = suite["regions"] != null
+                        ? new List<uint>(((LuaTable)suite["regions"]).Values.Cast<object>().Select(v => Convert.ToUInt32(v)))
+                        : new List<uint>(),
+
+                    triggers = suite["triggers"] != null
+                        ? new List<string>(((LuaTable)suite["triggers"]).Values.Cast<object>().Select(v => v.ToString())!)
+                        : new List<string>(),
+
+                    rand_weight = Convert.ToUInt32(suite["rand_weight"])
+                };
+
+                sceneGroupLua_.suites.Add(sceneGroupLuaSuite);
+            }
+        }
+        return sceneGroupLua_;
     }
 
     private Vector3 Table2Vector3(object vectorTable)
@@ -165,7 +293,7 @@ public class ResourceLoader
         _resourceManager.AvatarSkillExcel = this.LoadAvatarSkillExcel();
         _resourceManager.ProudSkillExcel = this.LoadProudSkillExcel();
         _resourceManager.WeaponExcel = this.LoadWeaponExcel();
-        _resourceManager.ScenePoints = this.LoadScenePoints();
+        _resourceManager.ScenePoints = LoadScenePointsAsync().Result;
         _resourceManager.MonsterExcel = this.loadMonsterExcel();
         _resourceManager.GadgetExcel = this.LoadGadgetExcel();
     }

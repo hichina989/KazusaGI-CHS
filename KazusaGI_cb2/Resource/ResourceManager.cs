@@ -23,15 +23,15 @@ public class ResourceManager
     public ResourceManager(string baseResourcePath = "resources")
     {
         // Init Logger
-        Logger c = new("ExcelLoader");
+        Logger c = new("ResourceLoader");
 
         // :3
-        c.LogInfo("Loading Excels...");
+        c.LogInfo("Loading Resources, this may take a while..");
 
         // Load all resources here
         this.loader = new(this, baseResourcePath);
 
         // Log SUCCESS
-        c.LogSuccess("Loaded Excels");
+        c.LogSuccess("Loaded Resources");
     }
 }
