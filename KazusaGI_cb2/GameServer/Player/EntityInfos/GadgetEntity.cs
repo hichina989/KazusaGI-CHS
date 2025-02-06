@@ -30,13 +30,17 @@ public class GadgetEntity : Entity
         this._gadgetLua = gadgetInfo;
         this.level = gadgetInfo != null ? gadgetInfo.level : 1;
         this.gadgetExcel = MainApp.resourceManager.GadgetExcel[gadgetId];
+        if (_gadgetLua != null)
+        {
+            _gadgetLua.pos.Y -= 1.0f; // idk why its like that
+        }
     }
 
     public SceneEntityInfo ToSceneEntityInfo(Session session)
     {
         SceneEntityInfo ret = new SceneEntityInfo()
         {
-            EntityType = ProtEntityType.ProtEntityMonster,
+            EntityType = ProtEntityType.ProtEntityGadget,
             EntityId = this._EntityId,
             Name = this.gadgetExcel.jsonName,
             MotionInfo = new MotionInfo()
