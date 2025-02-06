@@ -19,7 +19,7 @@ public class Scene
     private static ResourceManager resourceManager { get; } = MainApp.resourceManager;
     private static Logger logger = new("SceneManager");
     public bool isFinishInit { get; set; } = false;
-    public float defaultRange { get; private set; } = 50f;
+    public float defaultRange { get; private set; } = 100f;
     public List<MonsterLua> alreadySpawnedMonsters { get; private set; } = new();
     public List<GadgetLua> alreadySpawnedGadgets { get; private set; } = new();
 
