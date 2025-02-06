@@ -5,6 +5,7 @@ using KazusaGI_cb2.Resource.Excel;
 using System;
 using System.Numerics;
 using static System.Collections.Specialized.BitVector32;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace KazusaGI_cb2.GameServer;
 
@@ -17,6 +18,7 @@ public class Player
     public uint Uid { get; set; }
     public Dictionary<ulong, PlayerAvatar> avatarDict { get; set; }
     public Dictionary<ulong, PlayerWeapon> weaponDict { get; set; }
+    public Dictionary<ulong, PlayerItem> itemDict { get; set; }
     public List<PlayerTeam> teamList { get; set; }
     public uint TeamIndex { get; set; } = 0;
     public uint SceneId { get; set; } = 3;
@@ -37,6 +39,7 @@ public class Player
         this.avatarDict = new();
         this.weaponDict = new();
         this.teamList = new();
+        this.itemDict = new();
         this.Scene = new Scene(session, this);
         this.Pos = new();
         this.Rot = new();
@@ -59,6 +62,37 @@ public class Player
             AvatarEntity avatarEntity = new AvatarEntity(session, playerAvatar);
             session.entityMap.Add(avatarEntity._EntityId, avatarEntity);
             session.player!.avatarDict.Add(playerAvatar.Guid, playerAvatar);
+        }
+    }
+
+    public void AddAllMaterials(Session session, bool isSilent = false)
+    {
+        foreach(KeyValuePair<uint, MaterialExcelConfig> materialExcelRow in MainApp.resourceManager.MaterialExcel)
+        {
+            if (materialExcelRow.Value.itemType != ItemType.ITEM_MATERIAL && materialExcelRow.Value.itemType != ItemType.ITEM_VIRTUAL)
+                continue;
+            PlayerItem playerItem = new PlayerItem(session, materialExcelRow.Key);
+            session.player!.itemDict.Add(playerItem.Guid, playerItem);
+            if (!isSilent)
+            {
+                session.SendPacket(new StoreItemChangeNotify()
+                {
+                    StoreType = StoreType.StorePack,
+                    ItemLists = { 
+                        new Item() 
+                        { 
+                            Guid = playerItem.Guid,
+                            ItemId = playerItem.ItemId,
+                            Material = new Material() { Count = playerItem.Count }
+                        } 
+                    }
+                });
+                session.SendPacket(new ItemAddHintNotify()
+                {
+                    Reason = 3, // pick random one cuz doesnt matter, at least for now
+                    ItemLists = { new ItemHint() { Count = playerItem.Count, ItemId = playerItem.ItemId } }
+                });
+            }
         }
     }
     

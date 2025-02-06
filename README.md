@@ -81,7 +81,6 @@ class Handlers{
 
 ### Personal TODO List
 - implement DungeonEntryInfoReq
-- implement Gacha
 - implement basic ScriptLib
-- load scenes from group suits
+- calculate stats from curves
 - NOT load quest-related lua groups

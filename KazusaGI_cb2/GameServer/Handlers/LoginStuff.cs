@@ -30,6 +30,7 @@ public class LoginStuff
         };
         session.player = new Player(session, 69);
         session.player.AddAllAvatars(session);
+        session.player.AddAllMaterials(session, true);
         session.SendPacket(rsp);
         session.key = NewKey(Convert.ToUInt64(req.AccountUid));
     }
@@ -183,15 +184,28 @@ public class LoginStuff
         StoreWeightLimitNotify storeWeightLimitNotify = new StoreWeightLimitNotify()
         {
             StoreType = StoreType.StorePack,
-            WeightLimit = 1000
+            WeightLimit = UInt32.MaxValue - 1000
         };
         PlayerStoreNotify playerStoreNotify = new PlayerStoreNotify()
         {
             StoreType = StoreType.StorePack,
-            WeightLimit = 1000,
+            WeightLimit = UInt32.MaxValue - 1000,
         };
 
-        foreach(PlayerWeapon playerWeapon in session.player.weaponDict.Values)
+        foreach(PlayerItem playerItem in session.player.itemDict.Values)
+        {
+            playerStoreNotify.ItemLists.Add(new Item()
+            {
+                Guid = playerItem.Guid,
+                ItemId = playerItem.ItemId,
+                Material = new Material()
+                {
+                    Count = playerItem.Count
+                }
+            });
+        }
+
+        foreach (PlayerWeapon playerWeapon in session.player.weaponDict.Values)
         {
             playerStoreNotify.ItemLists.Add(new Item()
             {

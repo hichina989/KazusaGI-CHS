@@ -24,10 +24,10 @@ public class Session
     private uint lastEntityId = 0;
     private ILogger<Session> fileLogger;
     private static readonly string logsFolder = "Logs";
-    private static readonly List<string> blacklist = new List<string>() { 
+    private static readonly List<string> blacklist = new List<string>() {  // to not flood the console
         "SceneEntityAppearNotify", "AbilityInvocationsNotify", "ClientAbilitiesInitFinishCombineNotify",
         "SceneEntitiesMovesReq", "SceneEntitiesMovesRsp", "EvtAnimatorParameterNotify", "QueryPathReq", "QueryPathRsp",
-        "EvtSetAttackTargetNotify"
+        "EvtSetAttackTargetNotify", "PlayerStoreNotify"
     };
 
     public Session(ENetClient client, IntPtr peer)

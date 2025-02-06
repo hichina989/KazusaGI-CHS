@@ -6,6 +6,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace KazusaGI_cb2.GameServer;
 
@@ -78,6 +79,7 @@ public class Scene
 
     public void UpdateGroup(SceneGroupLua sceneGroupLua)
     {
+        SceneGroupLuaSuite baseSuite = GetBaseSuite(sceneGroupLua);
         List<SceneEntityAppearNotify> sceneEntityAppearNotifies = new List<SceneEntityAppearNotify>();
 
         SceneEntityAppearNotify currentSceneEntityAppearNotify = new SceneEntityAppearNotify()
@@ -95,6 +97,8 @@ public class Scene
         // Process monsters
         foreach (MonsterLua monsterLua in sceneGroupLua.monsters)
         {
+            if (!baseSuite.monsters.Contains(monsterLua.config_id))
+                continue;
             if (isInRange(monsterLua.pos, player.Pos, defaultRange) && !this.alreadySpawnedMonsters.Contains(monsterLua))
             {
                 uint MonsterId = monsterLua.monster_id;
@@ -132,6 +136,8 @@ public class Scene
         // Process gadgets
         foreach (GadgetLua gadgetLua in sceneGroupLua.gadgets)
         {
+            if (!baseSuite.gadgets.Contains(gadgetLua.config_id))
+                continue;
             if (isInRange(gadgetLua.pos, player.Pos, defaultRange) && !this.alreadySpawnedGadgets.Contains(gadgetLua))
             {
                 uint GadgetID = gadgetLua.gadget_id;
@@ -192,6 +198,15 @@ public class Scene
         }
     }
 
+    public SceneGroupLuaSuite GetBaseSuite(SceneGroupLua groupLua)
+    {
+        uint suitId = groupLua.init_config.suite;
+        if (suitId == 0)
+            return groupLua.suites[0]; // idk why the fuck it exists
+        int suitIndex = Convert.ToInt32(suitId - 1);
+        return groupLua.suites[suitIndex];
+    }
+
     public void LoadSceneBlock(SceneBlockLua blockLua)
     {
         if (this.sceneBlockLua == blockLua) return;
@@ -214,6 +229,7 @@ public class Scene
     }
     public void LoadSceneGroup(SceneGroupLua sceneGroupLua)
     {
+        SceneGroupLuaSuite baseSuite = GetBaseSuite(sceneGroupLua);
         List<SceneEntityAppearNotify> sceneEntityAppearNotifies = new List<SceneEntityAppearNotify>();
 
         SceneEntityAppearNotify currentSceneEntityAppearNotify = new SceneEntityAppearNotify()
@@ -224,6 +240,8 @@ public class Scene
         // Process monsters
         foreach (MonsterLua monsterLua in sceneGroupLua.monsters)
         {
+            if (!baseSuite.monsters.Contains(monsterLua.config_id))
+                continue;
             if (isInRange(monsterLua.pos, player.Pos, 50f) && !this.alreadySpawnedMonsters.Contains(monsterLua))
             {
                 uint MonsterId = monsterLua.monster_id;
@@ -250,6 +268,8 @@ public class Scene
         // Process gadgets
         foreach (GadgetLua gadgetLua in sceneGroupLua.gadgets)
         {
+            if (!baseSuite.gadgets.Contains(gadgetLua.config_id))
+                continue;
             if (isInRange(gadgetLua.pos, player.Pos, 50f) && !this.alreadySpawnedGadgets.Contains(gadgetLua))
             {
                 uint GadgetID = gadgetLua.gadget_id;

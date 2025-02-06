@@ -19,6 +19,9 @@ public class ResourceManager
     public Dictionary<uint, GadgetExcelConfig> GadgetExcel { get; set; }
     public Dictionary<uint, ScenePoint> ScenePoints { get; set; }
     public Dictionary<uint, SceneLua> SceneLuas { get; set; }
+    public Dictionary<uint, MaterialExcelConfig> MaterialExcel { get; set; }
+    public Dictionary<uint, GachaExcel> GachaExcel { get; set; }
+    public Dictionary<uint, List<GachaPoolExcel>> GachaPoolExcel { get; set; }
 
     public ResourceManager(string baseResourcePath = "resources")
     {

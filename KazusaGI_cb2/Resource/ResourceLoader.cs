@@ -29,9 +29,28 @@ public class ResourceLoader
             File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "AvatarSkillDepotExcelConfigData.json"))
         )!.ToDictionary(data => data.id);
 
+    private Dictionary<uint, GachaExcel> LoadGachaExcel() =>
+        JsonConvert.DeserializeObject<List<GachaExcel>>(
+            File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "GachaExcelConfigData.json"))
+        )!.ToDictionary(data => data.sortId);
+
+    private Dictionary<uint, List<GachaPoolExcel>> LoadGachaPoolExcel() =>
+        JsonConvert.DeserializeObject<List<GachaPoolExcel>>(
+            File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "GachaPoolExcelConfigData.json"))
+        )!.GroupBy(data => data.poolRootId)
+        .ToDictionary(
+            group => group.Key,
+            group => group.ToList()
+        );
+
     private Dictionary<uint, AvatarSkillExcelConfig> LoadAvatarSkillExcel() =>
         JsonConvert.DeserializeObject<List<AvatarSkillExcelConfig>>(
             File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "AvatarSkillExcelConfigData.json"))
+        )!.ToDictionary(data => data.id);
+
+    private Dictionary<uint, MaterialExcelConfig> LoadMaterialExcel() =>
+        JsonConvert.DeserializeObject<List<MaterialExcelConfig>>(
+            File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "MaterialExcelConfigData.json"))
         )!.ToDictionary(data => data.id);
 
     private Dictionary<uint, GadgetExcelConfig> LoadGadgetExcel() =>
@@ -309,5 +328,8 @@ public class ResourceLoader
         _resourceManager.ScenePoints = LoadScenePointsAsync().Result;
         _resourceManager.MonsterExcel = this.loadMonsterExcel();
         _resourceManager.GadgetExcel = this.LoadGadgetExcel();
+        _resourceManager.MaterialExcel = this.LoadMaterialExcel();
+        _resourceManager.GachaExcel = this.LoadGachaExcel();
+        _resourceManager.GachaPoolExcel = this.LoadGachaPoolExcel();
     }
 }
