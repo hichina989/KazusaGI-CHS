@@ -117,27 +117,35 @@ public class Scene
         }
 
 
-        /*
         // Process gadgets
         foreach (GadgetLua gadgetLua in sceneGroupLua.gadgets)
         {
-            uint GadgetID = gadgetLua.gadget_id;
-            Vector3 pos = gadgetLua.pos;
-            GadgetEntity gadgetEntity = new GadgetEntity(session, GadgetID, gadgetLua, pos);
-            session.entityMap.Add(gadgetEntity._EntityId, gadgetEntity);
-            currentSceneEntityAppearNotify.EntityLists.Add(gadgetEntity.ToSceneEntityInfo(session));
-
-            // If there are more than 5 entities, push current notify and start a new one
-            if (currentSceneEntityAppearNotify.EntityLists.Count >= 10)
+            if (isInRange(gadgetLua.pos, player.Pos, defaultRange) && !this.alreadySpawnedGadgets.Contains(gadgetLua))
             {
-                sceneEntityAppearNotifies.Add(currentSceneEntityAppearNotify);
-                currentSceneEntityAppearNotify = new SceneEntityAppearNotify()
+                uint GadgetID = gadgetLua.gadget_id;
+                Vector3 pos = gadgetLua.pos;
+                GadgetEntity gadgetEntity = new GadgetEntity(session, GadgetID, gadgetLua, pos);
+                session.entityMap.Add(gadgetEntity._EntityId, gadgetEntity);
+                currentSceneEntityAppearNotify.EntityLists.Add(gadgetEntity.ToSceneEntityInfo(session));
+
+                // If there are more than 5 entities, push current notify and start a new one
+                if (currentSceneEntityAppearNotify.EntityLists.Count >= 10)
                 {
-                    AppearType = VisionType.VisionMeet,
-                };
+                    sceneEntityAppearNotifies.Add(currentSceneEntityAppearNotify);
+                    currentSceneEntityAppearNotify = new SceneEntityAppearNotify()
+                    {
+                        AppearType = VisionType.VisionMeet,
+                    };
+                }
+            } else
+            {
+                if (!isInRange(gadgetLua.pos, player.Pos, defaultRange) && this.alreadySpawnedGadgets.Contains(gadgetLua))
+                {
+                    DespawnGadget(gadgetLua);
+                    this.alreadySpawnedGadgets.Remove(gadgetLua); // so it can respawn when we come back to the are
+                }
             }
         }
-        */
 
         // Add the last notify if it contains any entities, we don't want to send empty notifies
         if (currentSceneEntityAppearNotify.EntityLists.Count > 0)
@@ -207,27 +215,29 @@ public class Scene
         }
 
 
-        /*
         // Process gadgets
         foreach (GadgetLua gadgetLua in sceneGroupLua.gadgets)
         {
-            uint GadgetID = gadgetLua.gadget_id;
-            Vector3 pos = gadgetLua.pos;
-            GadgetEntity gadgetEntity = new GadgetEntity(session, GadgetID, gadgetLua, pos);
-            session.entityMap.Add(gadgetEntity._EntityId, gadgetEntity);
-            currentSceneEntityAppearNotify.EntityLists.Add(gadgetEntity.ToSceneEntityInfo(session));
-
-            // If there are more than 5 entities, push current notify and start a new one
-            if (currentSceneEntityAppearNotify.EntityLists.Count >= 10)
+            if (isInRange(gadgetLua.pos, player.Pos, 50f))
             {
-                sceneEntityAppearNotifies.Add(currentSceneEntityAppearNotify);
-                currentSceneEntityAppearNotify = new SceneEntityAppearNotify()
+                uint GadgetID = gadgetLua.gadget_id;
+                Vector3 pos = gadgetLua.pos;
+                GadgetEntity gadgetEntity = new GadgetEntity(session, GadgetID, gadgetLua, pos);
+                session.entityMap.Add(gadgetEntity._EntityId, gadgetEntity);
+                currentSceneEntityAppearNotify.EntityLists.Add(gadgetEntity.ToSceneEntityInfo(session));
+                alreadySpawnedGadgets.Add(gadgetLua);
+
+                // If there are more than 5 entities, push current notify and start a new one
+                if (currentSceneEntityAppearNotify.EntityLists.Count >= 10)
                 {
-                    AppearType = VisionType.VisionMeet,
-                };
+                    sceneEntityAppearNotifies.Add(currentSceneEntityAppearNotify);
+                    currentSceneEntityAppearNotify = new SceneEntityAppearNotify()
+                    {
+                        AppearType = VisionType.VisionMeet,
+                    };
+                }
             }
         }
-        */
 
         // Add the last notify if it contains any entities, we don't want to send empty notifies
         if (currentSceneEntityAppearNotify.EntityLists.Count > 0)
