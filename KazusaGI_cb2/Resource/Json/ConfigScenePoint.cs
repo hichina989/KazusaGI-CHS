@@ -15,6 +15,7 @@ public class ConfigScenePoint
     public ScenePointType Type;
     public List<uint> cutsceneList;
     public List<uint> dungeonIds;
+    public List<uint> dungeonRandomList;
     public Vector3 size;
     public Vector3 pos;
     public Vector3 rot;
