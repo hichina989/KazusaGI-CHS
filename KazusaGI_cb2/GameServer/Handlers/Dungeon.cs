@@ -26,6 +26,8 @@ public class Dungeon
         DungeonExcelConfig recommmendDungeon = MainApp.resourceManager.DungeonExcel[ids.First()];
         foreach (uint dungeonId in ids)
         {
+            if (!MainApp.resourceManager.DungeonExcel.ContainsKey(dungeonId))
+                continue;
             DungeonExcelConfig dungeonExcel = MainApp.resourceManager.DungeonExcel[dungeonId];
             DungeonEntryInfo entryInfo = new DungeonEntryInfo()
             {
