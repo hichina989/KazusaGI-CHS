@@ -24,6 +24,7 @@ public class Player
     public uint SceneId { get; set; } = 3;
     public uint WorldLevel { get; set; } = 2; // i think thats the most fair until we implement reliquary and more weapons
     public Scene Scene { get; set; }
+    public uint Overworld_PointId { get; set; } // for dungeons
     public Vector3 Pos { get; private set; }
     public Vector3 Rot { get; private set; } // wont actually be used except for scene tp
     public Gender PlayerGender { get; private set; } = Gender.Female;

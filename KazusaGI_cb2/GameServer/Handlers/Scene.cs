@@ -93,7 +93,9 @@ public class Scene
         {
             scenePointUnlockNotify.PointLists.Add(i);
         }
-        session.SendPacket(scenePointUnlockNotify);
+
+        if (req.SceneId == 3)
+            session.SendPacket(scenePointUnlockNotify);
     }
 
     [Packet.PacketCmdId(PacketId.EnterWorldAreaReq)]

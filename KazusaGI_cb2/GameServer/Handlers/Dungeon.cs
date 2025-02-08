@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -68,4 +69,36 @@ public class Dungeon
         session.SendPacket(rsp);
     }
 
+    [Packet.PacketCmdId(PacketId.PlayerEnterDungeonReq)]
+    public static void HandlePlayerEnterDungeonReq(Session session, Packet packet)
+    {
+        PlayerEnterDungeonReq req = packet.GetDecodedBody<PlayerEnterDungeonReq>();
+        PlayerEnterDungeonRsp rsp = new PlayerEnterDungeonRsp()
+        {
+            DungeonId = req.DungeonId,
+            PointId = req.PointId
+        };
+        session.player!.Overworld_PointId = req.PointId; // backup
+        DungeonExcelConfig dungeonExcelConfig = MainApp.resourceManager.DungeonExcel[req.DungeonId];
+        ConfigScenePoint configScenePoint = MainApp.resourceManager.ScenePoints[session.player.SceneId].points[req.PointId];
+        SceneLua sceneLua = MainApp.resourceManager.SceneLuas[dungeonExcelConfig.sceneId];
+        Vector3 transPos = sceneLua.scene_config.born_pos; // configScenePoint.tranPos != Vector3.Zero ? configScenePoint.tranPos : sceneLua.scene_config.born_pos;
+        Vector3 transRot = sceneLua.scene_config.born_rot; // configScenePoint.tranRot != Vector3.Zero ? configScenePoint.tranRot : sceneLua.scene_config.born_rot;
+        session.player.TeleportToPos(session, transPos, true);
+        session.player.SetRot(transRot);
+        session.player.EnterScene(session, dungeonExcelConfig.sceneId, EnterType.EnterDungeon);
+        session.SendPacket(rsp);
+    }
+
+    [Packet.PacketCmdId(PacketId.PlayerQuitDungeonReq)]
+    public static void HandlePlayerQuitDungeonReq(Session session, Packet packet)
+    {
+        PlayerQuitDungeonReq req = packet.GetDecodedBody<PlayerQuitDungeonReq>();
+        PlayerQuitDungeonRsp rsp = new PlayerQuitDungeonRsp();
+        ConfigScenePoint configScenePoint = MainApp.resourceManager.ScenePoints[3].points[session.player!.Overworld_PointId];
+        session.player!.TeleportToPos(session, configScenePoint.tranPos, true);
+        session.player!.SetRot(configScenePoint.tranRot);
+        session.player.EnterScene(session, 3, EnterType.EnterDungeon);
+        session.SendPacket(rsp);
+    }
 }

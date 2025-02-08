@@ -180,7 +180,7 @@ public class ResourceLoader
             {
                 begin_pos = begin_pos,
                 size = size,
-                born_pos = born_pos,
+                born_pos = FixSpawnPlayerY(born_pos),
                 born_rot = born_rot,
                 die_y = Convert.ToInt32(scene_config["die"]),
             };
@@ -367,6 +367,12 @@ public class ResourceLoader
     private Vector3 FixGadgetY(Vector3 pos)
     {
         pos.Y -= 1.0F; // :skull:
+        return pos;
+    }
+
+    private Vector3 FixSpawnPlayerY(Vector3 pos)
+    {
+        pos.Y += 1.0F; // :skull:
         return pos;
     }
 
