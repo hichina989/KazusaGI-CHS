@@ -30,6 +30,7 @@ public class ResourceManager
     public Dictionary<uint, ShopPlanExcelConfig> ShopPlanExcel { get; set; }
     public Dictionary<uint, DungeonExcelConfig> DungeonExcel { get; set; }
     public Dictionary<uint, InvestigationDungeonConfig> InvestigationDungeonExcel { get; set; }
+    public Dictionary<uint, InvestigationMonsterConfig> InvestigationMonsterExcel { get; set; }
     public Dictionary<uint, DailyDungeonConfig> DailyDungeonExcel { get; set; }
     public ResourceManager(string baseResourcePath = "resources")
     {

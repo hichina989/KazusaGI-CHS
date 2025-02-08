@@ -1,0 +1,53 @@
+﻿using KazusaGI_cb2.Protocol;
+using KazusaGI_cb2.Resource;
+using KazusaGI_cb2.Resource.Excel;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace KazusaGI_cb2.GameServer.Handlers;
+
+public class Investigation
+{
+    [Packet.PacketCmdId(PacketId.GetInvestigationMonsterReq)]
+    public static void HandleDungeonEntryInfoReq(Session session, Packet packet)
+    {
+        List<MonsterLua> alreadySpawned = session.player!.Scene.alreadySpawnedMonsters;
+        GetInvestigationMonsterReq req = packet.GetDecodedBody<GetInvestigationMonsterReq>();
+        GetInvestigationMonsterRsp rsp = new GetInvestigationMonsterRsp();
+        foreach (uint cityId in req.CityIdLists)
+        {
+            List<InvestigationMonsterConfig> investigationMonsters = MainApp.resourceManager.InvestigationMonsterExcel.Values.Where(x => x.cityId == cityId).ToList();
+            foreach (InvestigationMonsterConfig investigationMonster in investigationMonsters)
+            {
+                SceneGroupLua sceneGroup = GetSceneGroupLua(investigationMonster.groupIdList[0], alreadySpawned);
+                MonsterLua monsterLua = GetFirstMonster(investigationMonster.monsterId, sceneGroup, alreadySpawned);
+                rsp.MonsterLists.Add(new InvestigationMonster()
+                {
+                    Id = investigationMonster.id,
+                    CityId = investigationMonster.cityId,
+                    Level = MainApp.resourceManager.WorldLevelExcel[session.player!.WorldLevel].monsterLevel,
+                    IsAlive = true,
+                    Pos = Session.Vector3ToVector(monsterLua.pos),
+                    MaxBossChestNum = 69420,
+                    WorldResin = 1
+                });
+            }
+        }
+        session.SendPacket(rsp);
+    }
+
+    public static SceneGroupLua GetSceneGroupLua(uint groupId, List<MonsterLua> alreadySpawned)
+    {
+        SceneLua sceneluas = MainApp.resourceManager.SceneLuas[3]; // scene id for all that thing
+        return sceneluas.scene_blocks.First(x => x.Value.scene_groups.ContainsKey(groupId)).Value.scene_groups[groupId];
+    }
+
+    public static MonsterLua GetFirstMonster(uint monsterId, SceneGroupLua groupLua, List<MonsterLua> alreadySpawned)
+    {
+        return groupLua.monsters.First(monster => monster.monster_id == monsterId && !alreadySpawned.Contains(monster));
+    }
+}
