@@ -242,12 +242,12 @@ public class LoginStuff
         AddPropMap(PropType.PROP_PLAYER_EXP, 0, playerDataNotify.PropMaps);
         AddPropMap(PropType.PROP_PLAYER_HCOIN, 999999, playerDataNotify.PropMaps); // todo: get from inventory
 
-
         session.SendPacket(OpenStateUpdateNotify);
         session.SendPacket(storeWeightLimitNotify);
         session.SendPacket(playerStoreNotify);
         session.SendPacket(playerDataNotify);
         session.player.SendAvatarDataNotify(session);
+        Investigation.SendInvestigationNotify(session);
         session.player.EnterScene(session, session.player.SceneId);
         session.SendPacket(rsp);
     }

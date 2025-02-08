@@ -47,36 +47,25 @@ public class Dungeon
     }
 
     // todo: implement properly
-    /*
     [Packet.PacketCmdId(PacketId.GetDailyDungeonEntryInfoReq)]
     public static void HandleGetDailyDungeonEntryInfoReq(Session session, Packet packet)
     {
         GetDailyDungeonEntryInfoReq req = packet.GetDecodedBody<GetDailyDungeonEntryInfoReq>();
         GetDailyDungeonEntryInfoRsp rsp = new GetDailyDungeonEntryInfoRsp();
-        foreach (DailyDungeonConfig dailyDungeonConfig in MainApp.resourceManager.DailyDungeonExcel.Values)
+        foreach (InvestigationDungeonConfig investigationDungeonExcel in MainApp.resourceManager.InvestigationDungeonExcel.Values)
         {
-            List<uint> dungeonids = new List<uint>();
-            dungeonids.AddRange(dailyDungeonConfig.monday);
-            dungeonids.AddRange(dailyDungeonConfig.tuesday);
-            dungeonids.AddRange(dailyDungeonConfig.wednesday);
-            dungeonids.AddRange(dailyDungeonConfig.thursday);
-            dungeonids.AddRange(dailyDungeonConfig.friday);
-            dungeonids.AddRange(dailyDungeonConfig.saturday);
-            dungeonids.AddRange(dailyDungeonConfig.sunday);
-
-            foreach (uint dungeonid in dungeonids)
+            foreach (uint dungeonid in investigationDungeonExcel.dungeonIdList)
             {
-                DungeonExcelConfig dungeonExcel = MainApp.resourceManager.DungeonExcel[dungeonid];
                 DailyDungeonEntryInfo entryInfo = new DailyDungeonEntryInfo()
                 {
-                    DungeonEntryConfigId = dungeonExcel.id,
-                    DungeonEntryId = dailyDungeonConfig.id,
-                    RecommendDungeonId = dailyDungeonConfig.monday.First(),
+                    DungeonEntryConfigId = dungeonid,
+                    DungeonEntryId = investigationDungeonExcel.entranceId,
+                    RecommendDungeonId = dungeonid,
                 };
                 rsp.DailyDungeonInfoLists.Add(entryInfo);
             }
         }
         session.SendPacket(rsp);
     }
-    */
+
 }

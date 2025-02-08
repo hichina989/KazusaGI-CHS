@@ -42,6 +42,14 @@ public class ResourceLoader
             group => group.Key,
             group => group.ToList()
         );
+    private Dictionary<uint, InvestigationTargetConfig> LoadInvestigationTargetConfig() =>
+        JsonConvert.DeserializeObject<List<InvestigationTargetConfig>>(
+            File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "InvestigationTargetConfigData.json"))
+        )!.ToDictionary(data => data.questId);
+    private Dictionary<uint, InvestigationConfig> LoadInvestigationConfig() =>
+        JsonConvert.DeserializeObject<List<InvestigationConfig>>(
+            File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "InvestigationConfigData.json"))
+        )!.ToDictionary(data => data.id);
     private Dictionary<uint, InvestigationDungeonConfig> LoadInvestigationDungeonConfig() =>
         JsonConvert.DeserializeObject<List<InvestigationDungeonConfig>>(
             File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "InvestigationDungeonConfigData.json"))
@@ -396,8 +404,10 @@ public class ResourceLoader
         _resourceManager.ShopGoodsExcel = this.LoadShopGoodsExcelConfig();
         _resourceManager.ShopPlanExcel = this.LoadShopPlanExcelConfig();
         _resourceManager.DungeonExcel = this.LoadDungeonExcelConfig();
-        _resourceManager.InvestigationDungeonExcel = this.LoadInvestigationDungeonConfig();
         _resourceManager.DailyDungeonExcel = this.LoadDailyDungeonConfig();
+        _resourceManager.InvestigationExcel = this.LoadInvestigationConfig();
+        _resourceManager.InvestigationTargetExcel = this.LoadInvestigationTargetConfig();
+        _resourceManager.InvestigationDungeonExcel = this.LoadInvestigationDungeonConfig();
         _resourceManager.InvestigationMonsterExcel = this.LoadInvestigationMonsterConfig();
     }
 }

@@ -29,6 +29,8 @@ public class ResourceManager
     public Dictionary<uint, ShopGoodsExcelConfig> ShopGoodsExcel { get; set; }
     public Dictionary<uint, ShopPlanExcelConfig> ShopPlanExcel { get; set; }
     public Dictionary<uint, DungeonExcelConfig> DungeonExcel { get; set; }
+    public Dictionary<uint, InvestigationConfig> InvestigationExcel { get; set; }
+    public Dictionary<uint, InvestigationTargetConfig> InvestigationTargetExcel { get; set; }
     public Dictionary<uint, InvestigationDungeonConfig> InvestigationDungeonExcel { get; set; }
     public Dictionary<uint, InvestigationMonsterConfig> InvestigationMonsterExcel { get; set; }
     public Dictionary<uint, DailyDungeonConfig> DailyDungeonExcel { get; set; }
