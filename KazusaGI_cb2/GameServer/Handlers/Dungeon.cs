@@ -82,8 +82,8 @@ public class Dungeon
         DungeonExcelConfig dungeonExcelConfig = MainApp.resourceManager.DungeonExcel[req.DungeonId];
         ConfigScenePoint configScenePoint = MainApp.resourceManager.ScenePoints[session.player.SceneId].points[req.PointId];
         SceneLua sceneLua = MainApp.resourceManager.SceneLuas[dungeonExcelConfig.sceneId];
-        Vector3 transPos = sceneLua.scene_config.born_pos; // configScenePoint.tranPos != Vector3.Zero ? configScenePoint.tranPos : sceneLua.scene_config.born_pos;
-        Vector3 transRot = sceneLua.scene_config.born_rot; // configScenePoint.tranRot != Vector3.Zero ? configScenePoint.tranRot : sceneLua.scene_config.born_rot;
+        Vector3 transPos = sceneLua.scene_config.born_pos;
+        Vector3 transRot = sceneLua.scene_config.born_rot;
         session.player.TeleportToPos(session, transPos, true);
         session.player.SetRot(transRot);
         session.player.EnterScene(session, dungeonExcelConfig.sceneId, EnterType.EnterDungeon);
@@ -98,7 +98,7 @@ public class Dungeon
         ConfigScenePoint configScenePoint = MainApp.resourceManager.ScenePoints[3].points[session.player!.Overworld_PointId];
         session.player!.TeleportToPos(session, configScenePoint.tranPos, true);
         session.player!.SetRot(configScenePoint.tranRot);
-        session.player.EnterScene(session, 3, EnterType.EnterDungeon);
+        session.player.EnterScene(session, 3, EnterType.EnterSelf);
         session.SendPacket(rsp);
     }
 }

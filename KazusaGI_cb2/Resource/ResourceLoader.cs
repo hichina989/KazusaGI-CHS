@@ -372,7 +372,7 @@ public class ResourceLoader
 
     private Vector3 FixSpawnPlayerY(Vector3 pos)
     {
-        pos.Y += 1.0F; // :skull:
+        pos.Y += 0.3F; // :skull:
         return pos;
     }
 
