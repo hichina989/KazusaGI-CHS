@@ -11,72 +11,54 @@ using KazusaGI_cb2.Resource;
 
 namespace KazusaGI_cb2.GameServer;
 
-public class GadgetEntity : Entity
+public class NpcEntity : Entity
 {
-    public GadgetLua? _gadgetLua;
-    public uint _gadgetId;
-    public GadgetExcelConfig gadgetExcel;
-    public uint level;
+    public NpcLua? _npcInfo;
+    public uint _npcId;
 
-    // because some gadgets can be damaged, this is a placeholder for now
-    public float Hp = 1;
-    public float MaxHp = 1;
-
-    public GadgetEntity(Session session, uint gadgetId, GadgetLua? gadgetInfo, Vector3? position = null)
+    public NpcEntity(Session session, uint npcId, NpcLua? npcInfo, Vector3? position = null)
         : base(session, position)
     {
-        this._EntityId = session.GetEntityId(Protocol.ProtEntityType.ProtEntityGadget);
-        this._gadgetId = gadgetId;
-        this._gadgetLua = gadgetInfo;
-        this.level = MainApp.resourceManager.WorldLevelExcel[session.player!.WorldLevel].monsterLevel;
-                    // gadgetInfo != null ? gadgetInfo.level : MainApp.resourceManager.WorldLevelExcel[session.player!.WorldLevel].monsterLevel;
-        this.gadgetExcel = MainApp.resourceManager.GadgetExcel[gadgetId];
+        this._EntityId = session.GetEntityId(Protocol.ProtEntityType.ProtEntityNpc);
+        this._npcId = npcId;
+        this._npcInfo = npcInfo;
+        this.Position = _npcInfo != null ? _npcInfo.pos : this.Position;
     }
 
     public SceneEntityInfo ToSceneEntityInfo()
     {
         SceneEntityInfo ret = new SceneEntityInfo()
         {
-            EntityType = ProtEntityType.ProtEntityGadget,
+            EntityType = ProtEntityType.ProtEntityNpc,
             EntityId = this._EntityId,
-            Name = this.gadgetExcel.jsonName,
+            // maybe more excel info in future
             MotionInfo = new MotionInfo()
             {
-                Pos = _gadgetLua != null
-                    ? Session.Vector3ToVector(_gadgetLua.pos) : Session.Vector3ToVector(this.Position),
-                Rot = _gadgetLua != null
-                    ? Session.Vector3ToVector(_gadgetLua.rot) : Session.Vector3ToVector(this.Position),
+                Pos = Session.Vector3ToVector(this.Position),
+                Rot = _npcInfo != null
+                    ? Session.Vector3ToVector(_npcInfo.rot) : Session.Vector3ToVector(this.Position),
                 Speed = new Protocol.Vector(),
                 State = MotionState.MotionNone
             },
-            LifeState = this.Hp > 0 ? (uint)1 : 0,
+            LifeState = 1,
             AiInfo = new SceneEntityAiInfo()
             {
                 IsAiOpen = true,
-                BornPos = _gadgetLua != null
-                    ? Session.Vector3ToVector(_gadgetLua.pos) : Session.Vector3ToVector(this.Position),
+                BornPos = Session.Vector3ToVector(this.Position),
             },
         };
-        SceneGadgetInfo sceneGadgetInfo = new SceneGadgetInfo()
+        SceneNpcInfo sceneNpcInfo = new SceneNpcInfo()
         {
-            AuthorityPeerId = 1,
-            GadgetState = 0, // todo: implement states
-            IsEnableInteract = this.gadgetExcel.isInteractive,
-            ConfigId = _gadgetLua != null ? _gadgetLua.config_id : 0,
-            GadgetId = this._gadgetId,
-            BornType = GadgetBornType.GadgetBornGadget,
-            // todo: gadget type
+            NpcId = this._npcId,
+            RoomId = 0, // for quests later
+            ParentQuestId = 0, // again, for quests
+            BlockId = _npcInfo != null ? this._npcInfo.block_id : 0
         };
-        ret.PropMaps.Add((uint)PropType.PROP_LEVEL, new PropValue() { Type = (uint)PropType.PROP_LEVEL, Ival = this.level, Val = this.level });
-        // ret.PropMaps.Add((uint)PropType.PROP_EXP, new PropValue() { Type = (uint)PropType.PROP_EXP, Ival = 1, Val = this.level });
-        foreach (var prop in this.GetFightProps())
-        {
-            ret.FightPropMaps.Add(prop.Key, prop.Value);
-        }
-        ret.Gadget = sceneGadgetInfo;
+        ret.Npc = sceneNpcInfo;
         return ret;
     }
 
+    /*
     public Dictionary<uint, float> GetFightProps()
     {
         Dictionary<uint, float> ret = new Dictionary<uint, float>();
@@ -126,4 +108,5 @@ public class GadgetEntity : Entity
         }
         return ret;
     }
+    */
 }

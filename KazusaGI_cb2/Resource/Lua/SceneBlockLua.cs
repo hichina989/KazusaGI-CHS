@@ -29,7 +29,7 @@ public class SceneGroupBasicLua
 public class SceneGroupLua
 {
     public List<MonsterLua> monsters;
-    // npcs
+    public List<NpcLua> npcs;
     public List<GadgetLua> gadgets;
     // regions
     // triggers

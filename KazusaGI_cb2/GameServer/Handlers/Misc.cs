@@ -41,4 +41,23 @@ public class Misc
         PlayerSetPauseRsp rsp = new PlayerSetPauseRsp();
         session.SendPacket(rsp);
     }
+
+    [Packet.PacketCmdId(PacketId.LogTalkNotify)]
+    public static void HandleLogTalkNotify(Session session, Packet packet)
+    {
+        // meant for official server logs, useless for us
+    }
+
+    [Packet.PacketCmdId(PacketId.NpcTalkReq)]
+    public static void HandleNpcTalkReq(Session session, Packet packet)
+    {
+        NpcTalkReq req = packet.GetDecodedBody<NpcTalkReq>();
+        NpcTalkRsp rsp = new NpcTalkRsp()
+        {
+            NpcEntityId = req.NpcEntityId,
+            TalkType = req.TalkType,
+            CurTalkId = req.TalkId
+        };
+        session.SendPacket(rsp);
+    }
 }

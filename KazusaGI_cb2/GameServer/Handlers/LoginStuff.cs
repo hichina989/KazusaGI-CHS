@@ -176,9 +176,9 @@ public class LoginStuff
 
         OpenStateUpdateNotify OpenStateUpdateNotify = new OpenStateUpdateNotify();
 
-        for (uint i = 0; i < 600; i++)
+        foreach (Resource.OpenStateType i in Enum.GetValues(typeof(Resource.OpenStateType)))
         {
-            OpenStateUpdateNotify.OpenStateMaps.Add(i, 1);
+            OpenStateUpdateNotify.OpenStateMaps.Add(Convert.ToUInt32(i), 1);
         }
 
         // todo: move the next 2 packets to inventory manager

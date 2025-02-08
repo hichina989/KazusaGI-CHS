@@ -26,7 +26,8 @@ public class ResourceManager
     public Dictionary<uint, WeaponCurveExcelConfig> WeaponCurveExcel { get; set; }
     public Dictionary<uint, WorldLevelExcelConfig> WorldLevelExcel { get; set; }
     public Dictionary<uint, MonsterCurveExcelConfig> MonsterCurveExcel { get; set; }
-
+    public Dictionary<uint, ShopGoodsExcelConfig> ShopGoodsExcel { get; set; }
+    public Dictionary<uint, ShopPlanExcelConfig> ShopPlanExcel { get; set; }
     public ResourceManager(string baseResourcePath = "resources")
     {
         // Init Logger

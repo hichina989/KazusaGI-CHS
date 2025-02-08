@@ -32,4 +32,25 @@ public class Entity
         SeeMonsterRsp rsp = new SeeMonsterRsp();
         session.SendPacket(rsp);
     }
+
+    [Packet.PacketCmdId(PacketId.EntityForceSyncReq)]
+    public static void HandleEntityForceSyncReq(Session session, Packet packet)
+    {
+        EntityForceSyncReq req = packet.GetDecodedBody<EntityForceSyncReq>();
+        EntityForceSyncRsp rsp = new EntityForceSyncRsp()
+        {
+            EntityId = req.EntityId,
+            SceneTime = req.SceneTime
+        };
+        session.SendPacket(rsp);
+    }
+
+    // QuestCreateEntityReq
+    [Packet.PacketCmdId(PacketId.QuestCreateEntityReq)]
+    public static void HandleQuestCreateEntityReq(Session session, Packet packet)
+    {
+        // maybe later for quests ???
+    }
+
+
 }

@@ -42,7 +42,14 @@ public class ResourceLoader
             group => group.Key,
             group => group.ToList()
         );
-
+    private Dictionary<uint, ShopGoodsExcelConfig> LoadShopGoodsExcelConfig() =>
+        JsonConvert.DeserializeObject<List<ShopGoodsExcelConfig>>(
+            File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "ShopGoodsExcelConfigData.json"))
+        )!.ToDictionary(data => data.goodsId);
+    private Dictionary<uint, ShopPlanExcelConfig> LoadShopPlanExcelConfig() =>
+        JsonConvert.DeserializeObject<List<ShopPlanExcelConfig>>(
+            File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "ShopPlanExcelConfigData.json"))
+        )!.ToDictionary(data => data.Id);
     private Dictionary<uint, AvatarSkillExcelConfig> LoadAvatarSkillExcel() =>
         JsonConvert.DeserializeObject<List<AvatarSkillExcelConfig>>(
             File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "AvatarSkillExcelConfigData.json"))
@@ -244,9 +251,11 @@ public class ResourceLoader
             sceneGroupLua.DoString(LuaFileContents);
             LuaTable monstersList = (LuaTable)sceneGroupLua["monsters"];
             LuaTable gadgetsList = (LuaTable)sceneGroupLua["gadgets"];
+            LuaTable npcsList = (LuaTable)sceneGroupLua["npcs"];
             LuaTable initConfig = (LuaTable)sceneGroupLua["init_config"];
             LuaTable suites = (LuaTable)sceneGroupLua["suites"];
             sceneGroupLua_.monsters = new List<MonsterLua>();
+            sceneGroupLua_.npcs = new List<NpcLua>();
             sceneGroupLua_.gadgets = new List<GadgetLua>();
             sceneGroupLua_.init_config = new SceneGroupLuaInitConfig();
             sceneGroupLua_.suites = new List<SceneGroupLuaSuite>();
@@ -270,6 +279,19 @@ public class ResourceLoader
 
                 };
                 sceneGroupLua_.monsters.Add(monsterLua);
+            }
+
+            foreach (LuaTable npc in npcsList.Values.Cast<LuaTable>())
+            {
+                sceneGroupLua_.npcs.Add(new NpcLua()
+                {
+                    config_id = Convert.ToUInt32(npc["config_id"]),
+                    npc_id = Convert.ToUInt32(npc["npc_id"]),
+                    pos = Table2Vector3(npc["pos"]),
+                    rot = Table2Vector3(npc["rot"]),
+                    block_id = Convert.ToUInt32(blockId),
+                    group_id = groupId
+                });
             }
 
             foreach (LuaTable gadget in gadgetsList.Values.Cast<LuaTable>())
@@ -355,5 +377,7 @@ public class ResourceLoader
         _resourceManager.WeaponCurveExcel = this.LoadWeaponCurveExcelConfig();
         _resourceManager.WorldLevelExcel = this.LoadWorldLevelExcel();
         _resourceManager.MonsterCurveExcel = this.LoadMonsterCurveExcelConfig();
+        _resourceManager.ShopGoodsExcel = this.LoadShopGoodsExcelConfig();
+        _resourceManager.ShopPlanExcel = this.LoadShopPlanExcelConfig();
     }
 }

@@ -23,6 +23,7 @@ public class Scene
     public float defaultRange { get; private set; } = 100f;
     public List<MonsterLua> alreadySpawnedMonsters { get; private set; } = new();
     public List<GadgetLua> alreadySpawnedGadgets { get; private set; } = new();
+    public List<NpcLua> alreadySpawnedNpcs { get; private set; } = new();
 
     public Scene(Session _session, Player _player)
     {
@@ -132,6 +133,41 @@ public class Scene
             }
         }
 
+        // Process Npcs
+        foreach (NpcLua npcLua in sceneGroupLua.npcs)
+        {
+            if (isInRange(npcLua.pos, player.Pos, defaultRange) && !this.alreadySpawnedNpcs.Contains(npcLua))
+            {
+                uint npcId = npcLua.npc_id;
+                NpcEntity npcEntity = new NpcEntity(session, npcId, npcLua, npcLua.pos);
+                session.entityMap.Add(npcEntity._EntityId, npcEntity);
+                currentSceneEntityAppearNotify.EntityLists.Add(npcEntity.ToSceneEntityInfo());
+                alreadySpawnedNpcs.Add(npcLua);
+
+                // If there are more than 5 entities, push current notify and start a new one
+                if (currentSceneEntityAppearNotify.EntityLists.Count >= 10)
+                {
+                    sceneEntityAppearNotifies.Add(currentSceneEntityAppearNotify);
+                    currentSceneEntityAppearNotify = new SceneEntityAppearNotify()
+                    {
+                        AppearType = VisionType.VisionMeet,
+                    };
+                }
+            }
+            else
+            {
+                if (!isInRange(npcLua.pos, player.Pos, defaultRange) && this.alreadySpawnedNpcs.Contains(npcLua))
+                {
+                    NpcEntity? npcEntity = this.NpcEntity2DespawnNpc(npcLua);
+                    if (npcEntity != null)
+                    {
+                        sceneEntityDisappearNotify.EntityLists.Add(npcEntity._EntityId);
+                        this.alreadySpawnedNpcs.Remove(npcLua); // so it can respawn when we come back to the are
+                    }
+                }
+            }
+        }
+
 
         // Process gadgets
         foreach (GadgetLua gadgetLua in sceneGroupLua.gadgets)
@@ -144,7 +180,7 @@ public class Scene
                 Vector3 pos = gadgetLua.pos;
                 GadgetEntity gadgetEntity = new GadgetEntity(session, GadgetID, gadgetLua, pos);
                 session.entityMap.Add(gadgetEntity._EntityId, gadgetEntity);
-                currentSceneEntityAppearNotify.EntityLists.Add(gadgetEntity.ToSceneEntityInfo(session));
+                currentSceneEntityAppearNotify.EntityLists.Add(gadgetEntity.ToSceneEntityInfo());
                 alreadySpawnedGadgets.Add(gadgetLua);
 
                 // If there are more than 5 entities, push current notify and start a new one
@@ -264,6 +300,29 @@ public class Scene
             
         }
 
+        // Process Npcs
+        foreach (NpcLua npcLua in sceneGroupLua.npcs)
+        {
+            if (isInRange(npcLua.pos, player.Pos, 50f) && !this.alreadySpawnedNpcs.Contains(npcLua))
+            {
+                uint npcId = npcLua.npc_id;
+                Vector3 pos = npcLua.pos;
+                NpcEntity npcEntity = new NpcEntity(session, npcId, npcLua, pos);
+                session.entityMap.Add(npcEntity._EntityId, npcEntity);
+                currentSceneEntityAppearNotify.EntityLists.Add(npcEntity.ToSceneEntityInfo());
+                alreadySpawnedNpcs.Add(npcLua);
+
+                // If there are more than 5 entities, push current notify and start a new one
+                if (currentSceneEntityAppearNotify.EntityLists.Count >= 10)
+                {
+                    sceneEntityAppearNotifies.Add(currentSceneEntityAppearNotify);
+                    currentSceneEntityAppearNotify = new SceneEntityAppearNotify()
+                    {
+                        AppearType = VisionType.VisionMeet,
+                    };
+                }
+            }
+        }
 
         // Process gadgets
         foreach (GadgetLua gadgetLua in sceneGroupLua.gadgets)
@@ -276,7 +335,7 @@ public class Scene
                 Vector3 pos = gadgetLua.pos;
                 GadgetEntity gadgetEntity = new GadgetEntity(session, GadgetID, gadgetLua, pos);
                 session.entityMap.Add(gadgetEntity._EntityId, gadgetEntity);
-                currentSceneEntityAppearNotify.EntityLists.Add(gadgetEntity.ToSceneEntityInfo(session));
+                currentSceneEntityAppearNotify.EntityLists.Add(gadgetEntity.ToSceneEntityInfo());
                 alreadySpawnedGadgets.Add(gadgetLua);
 
                 // If there are more than 5 entities, push current notify and start a new one
@@ -348,6 +407,12 @@ public class Scene
     {
         MonsterEntity? monsterEntity = session.entityMap.Values.OfType<MonsterEntity>().FirstOrDefault(x => x._monsterInfo == monsterLua);
         return monsterEntity;
+    }
+
+    public NpcEntity? NpcEntity2DespawnNpc(NpcLua npcLua)
+    {
+        NpcEntity? npcEntity = session.entityMap.Values.OfType<NpcEntity>().FirstOrDefault(x => x._npcInfo == npcLua);
+        return npcEntity;
     }
 
     public GadgetEntity? GadgetEntity2DespawnGadget(GadgetLua gadgetLua)
