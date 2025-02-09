@@ -42,6 +42,18 @@ public class ResourceLoader
             group => group.Key,
             group => group.ToList()
         );
+    private Dictionary<uint, TowerLevelExcelConfig> LoadTowerLevelExcelConfig() =>
+        JsonConvert.DeserializeObject<List<TowerLevelExcelConfig>>(
+            File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "TowerLevelExcelConfigData.json"))
+        )!.ToDictionary(data => data.levelId);
+    private Dictionary<uint, TowerScheduleExcelConfig> LoadTowerScheduleExcelConfig() =>
+        JsonConvert.DeserializeObject<List<TowerScheduleExcelConfig>>(
+            File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "TowerScheduleExcelConfigData.json"))
+        )!.ToDictionary(data => data.scheduleId);
+    private Dictionary<uint, TowerFloorExcelConfig> LoadTowerFloorExcelConfig() =>
+        JsonConvert.DeserializeObject<List<TowerFloorExcelConfig>>(
+            File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "TowerFloorExcelConfigData.json"))
+        )!.ToDictionary(data => data.floorId);
     private Dictionary<uint, InvestigationTargetConfig> LoadInvestigationTargetConfig() =>
         JsonConvert.DeserializeObject<List<InvestigationTargetConfig>>(
             File.ReadAllText(Path.Combine(_baseResourcePath, ExcelSubPath, "InvestigationTargetConfigData.json"))
@@ -436,5 +448,8 @@ public class ResourceLoader
         _resourceManager.InvestigationTargetExcel = this.LoadInvestigationTargetConfig();
         _resourceManager.InvestigationDungeonExcel = this.LoadInvestigationDungeonConfig();
         _resourceManager.InvestigationMonsterExcel = this.LoadInvestigationMonsterConfig();
+        _resourceManager.TowerFloorExcel = this.LoadTowerFloorExcelConfig();
+        _resourceManager.TowerScheduleExcel = this.LoadTowerScheduleExcelConfig();
+        _resourceManager.TowerLevelExcel = this.LoadTowerLevelExcelConfig();
     }
 }

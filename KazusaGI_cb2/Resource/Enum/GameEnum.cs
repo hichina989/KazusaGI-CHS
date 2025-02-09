@@ -380,3 +380,11 @@ public enum GadgetType_Lua
     GADGET_DUNGEON_SECRET_CHEST = 2, // 地城秘密宝箱
     GADGET_DUNGEON_PASS_CHEST = 3, // 地城通关宝箱
 }
+
+public enum TowerCondType
+{
+    TOWER_COND_NONE = 0,
+    TOWER_COND_FINISH_TIME_LESS_THAN = 1,
+    TOWER_COND_LEFT_HP_GREATER_THAN = 2,
+    TOWER_COND_CHALLENGE_LEFT_TIME_MORE_THAN = 3,
+}

@@ -35,6 +35,9 @@ public class ResourceManager
     public Dictionary<uint, InvestigationDungeonConfig> InvestigationDungeonExcel { get; set; }
     public Dictionary<uint, InvestigationMonsterConfig> InvestigationMonsterExcel { get; set; }
     public Dictionary<uint, DailyDungeonConfig> DailyDungeonExcel { get; set; }
+    public Dictionary<uint, TowerFloorExcelConfig> TowerFloorExcel { get; set; }
+    public Dictionary<uint, TowerScheduleExcelConfig> TowerScheduleExcel { get; set; }
+    public Dictionary<uint, TowerLevelExcelConfig> TowerLevelExcel { get; set; }
     public ResourceManager(string baseResourcePath = "resources")
     {
         // Init Logger

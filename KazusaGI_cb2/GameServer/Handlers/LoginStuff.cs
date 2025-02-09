@@ -1,5 +1,6 @@
 ﻿using KazusaGI_cb2.GameServer.PlayerInfos;
 using KazusaGI_cb2.Protocol;
+using KazusaGI_cb2.Resource;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -178,6 +179,11 @@ public class LoginStuff
 
         foreach (Resource.OpenStateType i in Enum.GetValues(typeof(Resource.OpenStateType)))
         {
+            if (i == OpenStateType.OPEN_STATE_TOWER_FIRST_ENTER) // OPEN_STATE_TOWER_FIRST_ENTER
+            {
+                OpenStateUpdateNotify.OpenStateMaps.Add(Convert.ToUInt32(i), 0);
+                continue;
+            }
             OpenStateUpdateNotify.OpenStateMaps.Add(Convert.ToUInt32(i), 1);
         }
 
