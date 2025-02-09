@@ -18,7 +18,17 @@ public class Dungeon
     {
         DungeonEntryInfoReq req = packet.GetDecodedBody<DungeonEntryInfoReq>();
         ConfigScenePoint scenePoint = MainApp.resourceManager.ScenePoints[session.player!.SceneId].points[req.PointId];
-        List<uint> ids = scenePoint.dungeonIds.Count > 0 ? scenePoint.dungeonIds : scenePoint.dungeonRandomList;
+        List<uint> ids = new List<uint>();
+        if (scenePoint.dungeonIds.Count > 0)
+            ids.AddRange(scenePoint.dungeonIds);
+        else
+        {
+            foreach (uint id in scenePoint.dungeonRandomList)
+            {
+                DailyDungeonConfig dailyDungeonConfig = MainApp.resourceManager.DailyDungeonExcel[id];
+                ids.AddRange(dailyDungeonConfig.monday);
+            }
+        }
         DungeonEntryInfoRsp rsp = new DungeonEntryInfoRsp()
         {
             PointId = req.PointId,
@@ -49,25 +59,29 @@ public class Dungeon
         session.SendPacket(rsp);
     }
 
-    // todo: implement properly
+    // maybe make it actually work with the calendar? idk
     [Packet.PacketCmdId(PacketId.GetDailyDungeonEntryInfoReq)]
     public static void HandleGetDailyDungeonEntryInfoReq(Session session, Packet packet)
     {
         GetDailyDungeonEntryInfoReq req = packet.GetDecodedBody<GetDailyDungeonEntryInfoReq>();
         GetDailyDungeonEntryInfoRsp rsp = new GetDailyDungeonEntryInfoRsp();
-        foreach (InvestigationDungeonConfig investigationDungeonExcel in MainApp.resourceManager.InvestigationDungeonExcel.Values)
+        ScenePoint scenePoint = MainApp.resourceManager.ScenePoints[session.player!.SceneId];
+        foreach (KeyValuePair<uint, ConfigScenePoint> configScenePoint_kvp in scenePoint.points)
         {
-            foreach (uint dungeonid in investigationDungeonExcel.dungeonIdList)
+            ConfigScenePoint configScenePoint = configScenePoint_kvp.Value;
+            if (configScenePoint.dungeonRandomList.Count == 0)
+                continue;
+            foreach (uint dungeonConfigId in configScenePoint.dungeonRandomList)
             {
-                DailyDungeonEntryInfo entryInfo = new DailyDungeonEntryInfo()
+                DailyDungeonEntryInfo dailyDungeonEntryInfo = new DailyDungeonEntryInfo()
                 {
-                    DungeonEntryConfigId = dungeonid,
-                    DungeonEntryId = investigationDungeonExcel.entranceId,
-                    RecommendDungeonId = dungeonid,
+                    DungeonEntryId = configScenePoint_kvp.Key,
+                    DungeonEntryConfigId = dungeonConfigId,
+                    RecommendDungeonId = MainApp.resourceManager.DailyDungeonExcel[dungeonConfigId].monday.First()
                 };
-                rsp.DailyDungeonInfoLists.Add(entryInfo);
+                rsp.DailyDungeonInfoLists.Add(dailyDungeonEntryInfo);
             }
-        }
+        };
         session.SendPacket(rsp);
     }
 
