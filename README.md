@@ -80,8 +80,8 @@ class Handlers{
 - Press `Save Script`, a sound indicating success should be heard.
 
 ### Personal TODO List
-- implement DungeonEntryInfoReq
-- implement basic ScriptLib
+- tower (Spiral Abyss)
+- improve ScriptLib
 - NOT load quest-related lua groups
 - add all weapons + weapon switching
 - add relics

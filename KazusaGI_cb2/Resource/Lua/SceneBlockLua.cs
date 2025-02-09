@@ -32,12 +32,12 @@ public class SceneGroupLua
     public List<NpcLua> npcs;
     public List<GadgetLua> gadgets;
     // regions
-    // triggers
+    public List<SceneTriggerLua> triggers;
     // variables -> important for later (logic)
     public SceneGroupLuaInitConfig init_config;
     public List<SceneGroupLuaSuite> suites;
 
-    // functions later
+    // functions later ??
 }
 
 public class SceneGroupLuaInitConfig

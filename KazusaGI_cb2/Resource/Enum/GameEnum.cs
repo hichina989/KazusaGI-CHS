@@ -360,3 +360,23 @@ public enum DungeonType
     DUNGEON_TOWER = 6,
     DUNGEON_BOSS = 7,
 }
+
+public enum GadgetState_Lua
+{
+    Default = 0, // 默认待机状态
+    ChestLocked = 1, // 宝箱锁住状态
+    GearStart = 2, // 机关启动状态
+    GearStop = 3, // 机关停止状态
+    CrystalResonate1 = 4, // 水晶共鸣等级1
+    CrystalResonate2 = 5, // 水晶共鸣等级2
+    CrystalExplode = 6, // 水晶爆发
+    CrystalDrain = 7, // 水晶枯竭
+}
+
+public enum GadgetType_Lua
+{
+    GADGET_NONE = 0, // 无
+    GADGET_WORLD_CHECT = 1, // 地表世界宝箱
+    GADGET_DUNGEON_SECRET_CHEST = 2, // 地城秘密宝箱
+    GADGET_DUNGEON_PASS_CHEST = 3, // 地城通关宝箱
+}

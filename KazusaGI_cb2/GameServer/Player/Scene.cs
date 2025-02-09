@@ -78,6 +78,34 @@ public class Scene
         }
     }
 
+    public uint GetGroupIdFromGroupInfo(SceneGroupLua sceneGroupLua)
+    {
+        return this.sceneBlockLua!.scene_groups.First(c => c.Value == sceneGroupLua).Key;
+    }
+
+    public SceneGroupLua GetGroup(int groupId)
+    {
+        foreach (var scene in MainApp.resourceManager.SceneLuas.Values)
+        {
+            if (scene.scene_blocks == null)
+                continue;
+            foreach (var block in scene.scene_blocks)
+            {
+                if (block.Value.scene_groups == null)
+                    continue;
+                foreach (var group in block.Value.scene_groups)
+                {
+                    if (group.Key == groupId)
+                    {
+                        return group.Value;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
     public void UpdateGroup(SceneGroupLua sceneGroupLua)
     {
         SceneGroupLuaSuite baseSuite = GetBaseSuite(sceneGroupLua);

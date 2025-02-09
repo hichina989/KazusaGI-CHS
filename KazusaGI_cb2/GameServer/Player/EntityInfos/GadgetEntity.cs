@@ -60,12 +60,12 @@ public class GadgetEntity : Entity
         SceneGadgetInfo sceneGadgetInfo = new SceneGadgetInfo()
         {
             AuthorityPeerId = 1,
-            GadgetState = 0, // todo: implement states
+            GadgetState = _gadgetLua != null ? (uint)_gadgetLua.state : 0,
             IsEnableInteract = this.gadgetExcel.isInteractive,
             ConfigId = _gadgetLua != null ? _gadgetLua.config_id : 0,
             GadgetId = this._gadgetId,
             BornType = GadgetBornType.GadgetBornGadget,
-            // todo: gadget type
+            GadgetType = _gadgetLua != null ? (uint)_gadgetLua.type : 0,
         };
         ret.PropMaps.Add((uint)PropType.PROP_LEVEL, new PropValue() { Type = (uint)PropType.PROP_LEVEL, Ival = this.level, Val = this.level });
         // ret.PropMaps.Add((uint)PropType.PROP_EXP, new PropValue() { Type = (uint)PropType.PROP_EXP, Ival = 1, Val = this.level });

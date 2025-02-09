@@ -21,4 +21,7 @@ public class GadgetLua
     // custom fields
     public uint block_id;
     public uint group_id;
+
+    public GadgetState_Lua state;
+    public GadgetType_Lua type;
 }

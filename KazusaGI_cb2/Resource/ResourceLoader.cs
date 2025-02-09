@@ -13,10 +13,10 @@ namespace KazusaGI_cb2.Resource;
 
 public class ResourceLoader
 {
-    private static readonly string ExcelSubPath = "ExcelBinOutput";
-    private static readonly string JsonSubPath = "BinOutput";
-    private static readonly string LuaSubPath = "Lua";
-    private string _baseResourcePath;
+    public static readonly string ExcelSubPath = "ExcelBinOutput";
+    public static readonly string JsonSubPath = "BinOutput";
+    public static readonly string LuaSubPath = "Lua";
+    public string _baseResourcePath;
     private ResourceManager _resourceManager;
 
     private Dictionary<uint, AvatarExcelConfig> LoadAvatarExcel() =>
@@ -278,11 +278,30 @@ public class ResourceLoader
             LuaTable npcsList = (LuaTable)sceneGroupLua["npcs"];
             LuaTable initConfig = (LuaTable)sceneGroupLua["init_config"];
             LuaTable suites = (LuaTable)sceneGroupLua["suites"];
+            LuaTable triggers_config = (LuaTable)sceneGroupLua["triggers"];
             sceneGroupLua_.monsters = new List<MonsterLua>();
+            sceneGroupLua_.triggers = new List<SceneTriggerLua>();
             sceneGroupLua_.npcs = new List<NpcLua>();
             sceneGroupLua_.gadgets = new List<GadgetLua>();
             sceneGroupLua_.init_config = new SceneGroupLuaInitConfig();
             sceneGroupLua_.suites = new List<SceneGroupLuaSuite>();
+
+
+            foreach (LuaTable trigger in triggers_config.Values.Cast<LuaTable>())
+            {
+                SceneTriggerLua triggerLua = new SceneTriggerLua()
+                {
+                    name = Convert.ToString(trigger["name"])!,
+                    action = Convert.ToString(trigger["action"])!,
+                    condition = Convert.ToString(trigger["condition"])!,
+                };
+
+                if (trigger["event"] != null)
+                {
+                    triggerLua._event = (EventTriggerType)Convert.ToUInt32(trigger["event"]);
+                }
+                sceneGroupLua_.triggers.Add(triggerLua);
+            }
 
             foreach (LuaTable monster in monstersList.Values.Cast<LuaTable>())
             {
@@ -329,7 +348,9 @@ public class ResourceLoader
                     route_id = Convert.ToUInt32(gadget["route_id"]),
                     level = Convert.ToUInt32(gadget["level"]),
                     block_id = Convert.ToUInt32(blockId),
-                    group_id = groupId
+                    group_id = groupId,
+                    state = gadget["state"] != null ? (GadgetState_Lua)Convert.ToUInt32(gadget["state"]) : GadgetState_Lua.Default,
+                    type = gadget["type"] != null ? (GadgetType_Lua)Convert.ToUInt32(gadget["type"]) : GadgetType_Lua.GADGET_NONE
                 });
             }
 

@@ -10,6 +10,9 @@ using KazusaGI_cb2.Resource.Excel;
 using KazusaGI_cb2.Resource;
 using NLua;
 using System.Resources;
+using KazusaGI_cb2.GameServer.Lua;
+using static KazusaGI_cb2.Utils.ENet;
+using System.Text.RegularExpressions;
 
 namespace KazusaGI_cb2.GameServer;
 
@@ -204,6 +207,14 @@ public class MonsterEntity : Entity
             DisappearType = vision
         });
         this.session!.entityMap.Remove(this._EntityId);
+
+        if (this._monsterInfo != null)
+        {
+            LuaManager.executeTriggersLua(
+            session,
+            session.player!.Scene.GetGroup((int)this._monsterInfo!.group_id),
+            new ScriptArgs((int)this._monsterInfo!.group_id, (int)TriggerEventType.EVENT_ANY_MONSTER_DIE));
+        };
     }
 
     

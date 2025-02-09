@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using KazusaGI_cb2.Resource.Excel;
@@ -9,7 +10,7 @@ namespace KazusaGI_cb2.Resource;
 
 public class ResourceManager
 {
-    private ResourceLoader loader;
+    public ResourceLoader loader;
     public Dictionary<uint, AvatarExcelConfig> AvatarExcel { get; set; }
     public Dictionary<uint, AvatarSkillDepotExcelConfig> AvatarSkillDepotExcel { get; set; }
     public Dictionary<uint, AvatarSkillExcelConfig> AvatarSkillExcel { get; set; }
@@ -47,5 +48,11 @@ public class ResourceManager
 
         // Log SUCCESS
         c.LogSuccess("Loaded Resources");
+    }
+
+    public string GetLuaStringFromGroupId(uint groupId)
+    {
+        string directory = Path.Combine(this.loader._baseResourcePath, ResourceLoader.LuaSubPath, "Scene");
+        return Directory.GetFiles(directory, $"*_group{groupId}.lua", SearchOption.AllDirectories).FirstOrDefault()!;
     }
 }
