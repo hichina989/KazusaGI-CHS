@@ -81,20 +81,13 @@ public class Scene
         foreach (KeyValuePair<uint, ConfigScenePoint> kvp in MainApp.resourceManager.ScenePoints[req.SceneId].points)
         {
             rsp.UnlockedPointLists.Add(kvp.Key);
+            rsp.SceneId = req.SceneId;
             rsp.BelongUid = req.BelongUid;
 
             if (!rsp.UnlockAreaLists.Contains(kvp.Value.areaId) && kvp.Value.areaId != 0)
                 rsp.UnlockAreaLists.Add(kvp.Value.areaId);
         }
         session.SendPacket(rsp);
-        ScenePointUnlockNotify scenePointUnlockNotify = new ScenePointUnlockNotify() { SceneId = session.player!.SceneId };
-
-        for (uint i = 1; i < 200; i++)
-        {
-            scenePointUnlockNotify.PointLists.Add(i);
-        }
-
-        session.SendPacket(scenePointUnlockNotify);
     }
 
     [Packet.PacketCmdId(PacketId.EnterWorldAreaReq)]
