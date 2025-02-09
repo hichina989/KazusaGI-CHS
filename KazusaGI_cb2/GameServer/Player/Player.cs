@@ -1,4 +1,5 @@
 ﻿using KazusaGI_cb2.GameServer.PlayerInfos;
+using KazusaGI_cb2.GameServer.Tower;
 using KazusaGI_cb2.Protocol;
 using KazusaGI_cb2.Resource;
 using KazusaGI_cb2.Resource.Excel;
@@ -28,6 +29,7 @@ public class Player
     public Vector3 Pos { get; private set; }
     public Vector3 Rot { get; private set; } // wont actually be used except for scene tp
     public Gender PlayerGender { get; private set; } = Gender.Female;
+    public TowerInstance? towerInstance { get; set; }
 
     public Player(Session session, uint uid)
     {

@@ -111,9 +111,19 @@ public class Dungeon
     [Packet.PacketCmdId(PacketId.PlayerQuitDungeonReq)]
     public static void HandlePlayerQuitDungeonReq(Session session, Packet packet)
     {
+        uint destPointId;
         PlayerQuitDungeonReq req = packet.GetDecodedBody<PlayerQuitDungeonReq>();
         PlayerQuitDungeonRsp rsp = new PlayerQuitDungeonRsp();
-        ConfigScenePoint configScenePoint = MainApp.resourceManager.ScenePoints[3].points[session.player!.Overworld_PointId];
+        if (session.player!.towerInstance != null)
+        {
+            destPointId = session.player!.towerInstance._towerPointId;
+            session.player!.towerInstance.EndInstance();
+        }
+        else
+        {
+            destPointId = req.PointId != 0 ? req.PointId : session.player!.Overworld_PointId;
+        }
+        ConfigScenePoint configScenePoint = MainApp.resourceManager.ScenePoints[3].points[destPointId];
         session.player!.TeleportToPos(session, configScenePoint.tranPos, true);
         session.player!.SetRot(configScenePoint.tranRot);
         session.player.EnterScene(session, 3, EnterType.EnterSelf);

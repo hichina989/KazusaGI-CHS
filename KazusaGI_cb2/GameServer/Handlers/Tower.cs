@@ -1,4 +1,5 @@
-﻿using KazusaGI_cb2.Protocol;
+﻿using KazusaGI_cb2.GameServer.Tower;
+using KazusaGI_cb2.Protocol;
 using KazusaGI_cb2.Resource;
 using KazusaGI_cb2.Resource.Excel;
 using Newtonsoft.Json;
@@ -55,4 +56,27 @@ public class Tower
         session.SendPacket(rsp);
     }
 
+    [Packet.PacketCmdId(PacketId.TowerEnterLevelReq)]
+    public static void HandleTowerEnterLevelReq(Session session, Packet packet)
+    {
+        TowerEnterLevelReq towerEnterLevelReq = packet.GetDecodedBody<TowerEnterLevelReq>();
+        if (session.player!.towerInstance == null)
+        {
+            session.c.LogError("TowerInstance is null");
+            session.SendPacket(new TowerEnterLevelRsp()
+            {
+                Retcode = -1,
+            });
+            return;
+        }
+        session.player.towerInstance.HandleTowerEnterLevelReq(packet);
+    }
+
+    [Packet.PacketCmdId(PacketId.TowerTeamSelectReq)]
+    public static void HandleTowerTeamSelectReq(Session session, Packet packet)
+    {
+        TowerTeamSelectReq towerTeamSelectReq = packet.GetDecodedBody<TowerTeamSelectReq>();
+        session.player!.towerInstance = new TowerInstance(session, session.player);
+        session.player!.towerInstance.HandleTowerTeamSelectReq(packet);
+    }
 }
