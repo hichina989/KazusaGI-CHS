@@ -69,10 +69,12 @@ public class Dungeon
         foreach (KeyValuePair<uint, ConfigScenePoint> configScenePoint_kvp in scenePoint.points)
         {
             ConfigScenePoint configScenePoint = configScenePoint_kvp.Value;
-            if (configScenePoint.dungeonRandomList.Count == 0)
+            if (configScenePoint.dungeonRandomList == null || configScenePoint.dungeonRandomList.Count == 0)
                 continue;
             foreach (uint dungeonConfigId in configScenePoint.dungeonRandomList)
             {
+                if (!MainApp.resourceManager.DailyDungeonExcel.ContainsKey(dungeonConfigId))
+                    continue;
                 DailyDungeonEntryInfo dailyDungeonEntryInfo = new DailyDungeonEntryInfo()
                 {
                     DungeonEntryId = configScenePoint_kvp.Key,
