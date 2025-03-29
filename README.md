@@ -3,27 +3,23 @@
 
 ##请注意：该项目仍处于早期测试阶段，处于非常早期的阶段，许多功能可能无法按预期工作。和代码质量一样，以后会经历很多次的重写和重构，所以请不要评判 :\)
 
-# Usage
+# 用法
 -使用VS2022编译
 - 下载Data ，然后从 resources 存储库中将它们放在可执行文件旁边的文件夹
 - 下载游戏：Download [0.7.1](https://autopatchhk.yuanshen.com/client_app/pc_plus19/Genshin_0.7.1.zip) or [0.7.0](https://autopatchhk.yuanshen.com/client_app/pc_plus19/Genshin_0.7.0.zip) 
 - 打补丁 [mhyprot2.Sys](https://cdn.discordapp.com/attachments/1105125107506102373/1335738261146177688/mhyprot2.Sys?ex=67a142b2&is=679ff132&hm=a79280fc566301ca8ccaf9e3f03449808d5940217bbd3745de59854331cca69c&) （没了）
 - [下载](https://api.getfiddler.com/fc/latest) 和 [configure](#Configure-Fiddler) Fiddler
 
-# Configure Fiddler
-### To access options, you go to Tools->Options
-## HTTPS Section
-- Capture HTTPS CONNECTs -> enable
-(if it asks you if you want to install Fiddler certificate, select Yes)
-- Decrypt HTTPS traffic -> enable
-- Ignore server certificate errors -> enable
-## Connections Section
-- Port -> 9999
-- Capture FTP requests -> enable
-## Gateway Section
-- Either `Use System Proxy` or `Automatically Detect Proxy using WPAD`
-### To access FiddlerScript, you go to the FiddlerScript tab
-- Delete the contents and past the following scipt:
+# 配置 Fiddler
+### 要访问选项，请转到 Tools->Options
+## HTTPS 部分
+- 捕获 HTTPS CONNECT - > 启用 （如果系统询问您是否要安装 Fiddler 证书，请选择 Yes）
+- 解密 HTTPS 流量 -> 启用
+## 连接部分
+- 端口 -> 9999
+- 捕获 FTP 请求 - >启用
+### 要访问 FiddlerScript，请转到 FiddlerScript 选项卡
+- 删除内容并粘贴以下 scipt：
 ```js
 import System;
 import System.Windows.Forms;
@@ -76,15 +72,15 @@ class Handlers{
     }
 };
 ```
-- Press `Save Script`, a sound indicating success should be heard.
+- 按`Save Script`, 应听到表示成功的声音。
 
-### Personal TODO List
-- tower (Spiral Abyss)
-- improve ScriptLib
-- NOT load quest-related lua groups
-- add all weapons + weapon switching
-- add relics
-- fix weapon being invisible when switching teams for a short time \
-(i have no idea what causes it. not gamebreaking, but absolutely annoying)
+### 个人待办事项清单
+- 深渊
+- 改进 ScriptLib？
+- 不加载与任务相关的 lua 组
+- 添加所有武器+武器切换
+- 添加圣遗物
+- 修复短时间内切换队伍时武器不可见的问题
+（我不知道是什么原因造成的。虽然不会破坏游戏，但绝对很烦人）
 
-- save data to db (wont happen anytime soon, unless someone wants to PR its implementation)
+- 将数据保存到数据库（不会很快发生，除非有人想 PR 其实现）
