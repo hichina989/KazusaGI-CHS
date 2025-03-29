@@ -1,15 +1,14 @@
 # KazusaGI_cb2
  Server sofware reimplementaion for an old version of a certain anime game
 
-## Please note: the project is still WIP and is in its very early stages, and many features might not work as intended. Same with the code quality, it will go through many rewrites and refactoring in the future, so please don't judge :\)
+##请注意：该项目仍处于早期测试阶段，处于非常早期的阶段，许多功能可能无法按预期工作。和代码质量一样，以后会经历很多次的重写和重构，所以请不要评判 :\)
 
 # Usage
-- Compile via Visual Studio 2022
-- Download `BinOutput`, `Lua` and `ExcelBinOutput` from [the resources repo](https://github.com/Hiro420/KazusaGI_Data) and place them in `resources` folder, next to the executable
-- Download [0.7.1](https://autopatchhk.yuanshen.com/client_app/pc_plus19/Genshin_0.7.1.zip) or [0.7.0](https://autopatchhk.yuanshen.com/client_app/pc_plus19/Genshin_0.7.0.zip) version of a certain anime game 
-- Place a patched [mhyprot2.Sys](https://cdn.discordapp.com/attachments/1105125107506102373/1335738261146177688/mhyprot2.Sys?ex=67a142b2&is=679ff132&hm=a79280fc566301ca8ccaf9e3f03449808d5940217bbd3745de59854331cca69c&) in the game folder, next to the executable
-- [Download](https://api.getfiddler.com/fc/latest) and [configure](#Configure-Fiddler) Fiddler
-- Profit
+-使用VS2022编译
+- 下载Data ，然后从 resources 存储库中将它们放在可执行文件旁边的文件夹
+- 下载游戏：Download [0.7.1](https://autopatchhk.yuanshen.com/client_app/pc_plus19/Genshin_0.7.1.zip) or [0.7.0](https://autopatchhk.yuanshen.com/client_app/pc_plus19/Genshin_0.7.0.zip) 
+- 打补丁 [mhyprot2.Sys](https://cdn.discordapp.com/attachments/1105125107506102373/1335738261146177688/mhyprot2.Sys?ex=67a142b2&is=679ff132&hm=a79280fc566301ca8ccaf9e3f03449808d5940217bbd3745de59854331cca69c&) （没了）
+- [下载](https://api.getfiddler.com/fc/latest) 和 [configure](#Configure-Fiddler) Fiddler
 
 # Configure Fiddler
 ### To access options, you go to Tools->Options
