@@ -8,7 +8,7 @@
 - 下载Data ，然后从 resources 存储库中将它们放在可执行文件旁边的文件夹
 - 下载游戏：Download [0.7.1](https://autopatchhk.yuanshen.com/client_app/pc_plus19/Genshin_0.7.1.zip) or [0.7.0](https://autopatchhk.yuanshen.com/client_app/pc_plus19/Genshin_0.7.0.zip) 
 - 打补丁 [mhyprot2.Sys](https://cdn.discordapp.com/attachments/1105125107506102373/1335738261146177688/mhyprot2.Sys?ex=67a142b2&is=679ff132&hm=a79280fc566301ca8ccaf9e3f03449808d5940217bbd3745de59854331cca69c&) （没了）
-- [下载](https://api.getfiddler.com/fc/latest) 和 [configure](#Configure-Fiddler) Fiddler
+- [下载](https://api.getfiddler.com/fc/latest) 和 [配置](#%E9%85%8D%E7%BD%AE-fiddler) Fiddler
 
 # 配置 Fiddler
 ### 要访问选项，请转到 Tools->Options
