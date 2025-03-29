@@ -1,5 +1,5 @@
 # KazusaGI_cb2
- Server sofware reimplementaion for an old version of a certain anime game
+某个动漫游戏的旧版本的服务器软件重新实现
 
 ##请注意：该项目仍处于早期测试阶段，处于非常早期的阶段，许多功能可能无法按预期工作。和代码质量一样，以后会经历很多次的重写和重构，所以请不要评判 :\)
 
