@@ -85,5 +85,5 @@ class Handlers{
 
 - 将数据保存到数据库（不会很快发生，除非有人想 PR 其实现）
 
-# ty
+# 感谢
 [Hiro420](https://github.com/Hiro420)
